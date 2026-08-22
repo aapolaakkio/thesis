@@ -1,0 +1,9 @@
+.venv/
+complex_test_metrics*.csv
+complex_sweep_metrics*.csv
+pipeline_metrics*.csv
+complex_test.graph
+graphs/
+metrics/
+**/__pycache__/
+**/.DS_Store

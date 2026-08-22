@@ -186,7 +186,7 @@ Since the order in which the drivers are processed affects the outcome of the gr
     \If{no driver's schedule changed during the round}
       \State \textbf{break}
     \EndIf
-    \If{$Q$ did not shrink during the round}
+    \If{$\mathrm{round} > 1$ and $Q$ did not shrink during the round}
       \State \textbf{break}
     \EndIf
   \EndFor
