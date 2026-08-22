@@ -3,6 +3,8 @@
 
 In this section, we describe the methodology we use to solve the ride-sharing problem. First, we state the problem and then briefly introduce the idea of the pipeline, followed by a thorough discussion of each step in more detail.
 
+The source code for the pipeline can be found in the following \href{https://github.com/aapolaakkio/thesis}{GitHub repository}.
+
 \subsection{Problem formulation}
 
 We have a set $\mathcal{N}$ of customers and a set $\mathcal{K}$ of drivers. Each customer $i$ has a set $\mathcal{P}_i\subset\mathcal{K}$ of driver preferences. A customer $i$ can be assigned to a driver $k$ only if the driver is in the preference set of customer $i$. This relationship between customer and drivers can be modeled using a graph.
