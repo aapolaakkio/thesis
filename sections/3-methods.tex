@@ -1,0 +1,196 @@
+\section{Methods}
+\label{sec:methods}
+
+In this section, we describe the methodology we use to solve the ride-sharing problem. First, we state the problem and then briefly introduce the idea of the pipeline, followed by a thorough discussion of each step in more detail.
+
+\subsection{Problem formulation}
+
+We have a set $\mathcal{N}$ of customers and a set $\mathcal{K}$ of drivers. Each customer $i$ has a set $\mathcal{P}_i\subset\mathcal{K}$ of driver preferences. A customer $i$ can be assigned to a driver $k$ only if the driver is in the preference set of customer $i$. This relationship between customer and drivers can be modeled using a graph.
+
+\begin{definition}[Graph]
+A \emph{graph} $G = (V, E)$ consists of a finite set $V$ of \emph{vertices} and a set $E$ of \emph{edges}, where each edge $\{u, v\} \in E$ joins two distinct vertices $u, v \in V$. Each edge also carries a number $w(e)$, making the graph a \emph{weighted graph}.
+\end{definition}
+
+The sets $\mathcal{N}$ and $\mathcal{K}$ form two disjoint sets of vertices. These sets can be connected in a unique way by connecting each vertex $i\in\mathcal{N}$ to all vertices in $\mathcal{P}_i$ for all $i$. Since $\mathcal{P_i}\subset\mathcal{K}$, a vertex $i\in\mathcal{N}$ can be connected only to a vertex $k\in\mathcal{K}$, making the graph bipartite. 
+
+\begin{definition}[Bipartite graph]
+A graph is \emph{bipartite} if its set of vertices can be partitioned into two disjoint sets $V = A \cup B$ such that every edge joins a vertex of $A$ to a vertex of $B$.
+\end{definition}
+
+Each customer $i$ has a wanted pickup time $U_i$ and a ride duration $R_i$ and each driver $k$ works within a shift window $[S_k, H_k]$, meaning the driver is available from time $S_k$ until time $H_k$. 
+
+The objective is to calculate optimal schedules for each driver so that the number of not served customers, customer pickup delays and driver idle times are minimized. This means finding a suitable set of customers for each driver. We define the problem as a combination of a matching and an optimization problem. 
+
+\begin{definition}[Matching]
+A \emph{matching} in a graph is a set of edges of which no two share a vertex. We use a capacitated generalization in which each vertex $v$ may be connected by at most $c(v)$ chosen edges, where $c(v)$ is a per-vertex capacity.
+\end{definition}
+
+The idea is to first find, for each driver $k$, an assignable set $A_k \subseteq \mathcal{N}$ of customers by computing a matching on the preference graph. Then, using the assignable sets, we solve an initial schedule for each driver with mixed-integer linear programming (MILP). Because the drivers are scheduled independently of each other, a single customer can end up assigned to several drivers, causing a conflict. To solve the conflicts, we perform a conflict resolution step and iterate the scheduling to improve the total objective value. As a result we have three separate problems that we need to separately define and solve.
+
+These three subproblems, matching, scheduling and conflict resolution, together form a pipeline that solves the whole scheduling problem. It takes the bipartite graph of preferences as input and produces the optimized schedules together with a set of metrics as output. Figure~\ref{fig:pipeline} shows the full outline of the pipeline.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.05\textwidth]{figures/pipeline_process_flow.pdf}
+  \caption{The outline of the scheduling pipeline}
+  \label{fig:pipeline}
+\end{figure}
+
+\subsection{Matching via maximum flow}
+
+The first subproblem in the scheduling pipeline is the matching problem.
+
+\begin{problem}[Matching customers to drivers]
+\label{prob:matching}
+Let $G = (\mathcal{N} \cup \mathcal{K}, E)$ be the bipartite preference graph with an edge set 
+\[
+E = \bigl\{\, \{i, k\} : i \in \mathcal{N},\ k \in \mathcal{P}_i \,\bigr\}
+\]
+and let $w(i) \in \mathbb{Z}$ be the weight of customer $i$, that is, the maximum number of drivers customer $i$ may be matched to and let $w(k) \in \mathbb{Z}$ be the weight of driver $k$, that is, the maximum number of customers driver $k$ may serve.\\
+Find a matching $M \subseteq E$ of maximum cardinality that respects the weights, i.e. solve
+\begin{align}
+  \max_{M \subseteq E} \quad & |M| \label{eq:matching-obj}\\
+  \text{s.t.} \quad
+  & \bigl|\{\, k : \{i,k\} \in M \,\}\bigr| \le c(i) && \text{for all } i \in \mathcal{N}, \label{eq:matching-cust}\\
+  & \bigl|\{\, i : \{i,k\} \in M \,\}\bigr| \le c(k) && \text{for all } k \in \mathcal{K}. \label{eq:matching-drv}
+\end{align}
+The matching $M$ defines an assignable set for each driver $k$
+\[
+A_k = \bigl\{\, i \in \mathcal{N} : \{i, k\} \in M \,\bigr\}.
+\]
+\end{problem}
+
+We solve Problem~\ref{prob:matching} by utilizing maximum flow computation with the Ford-Fulkerson algorithm~\cite{ford1956maximal}. Ford-Fulkerson algorithm is used for computing the maximum flow through a directed graph. Ford-Fulkerson constructs a copy of the original graph, a so called residual graph, which it uses to calculate the maximum flow by repeatedly looking for augmenting paths through the graph. An augmenting path is a path through the graph that has capacity left. We use the a variant of the Ford-Fulkerson algorithm called Edmonds-Karp algorithm~\cite{edmonds1972theoretical}, which computes the augmenting paths using breadth-first search. Algorithm~\ref{alg:ff} gives the pseudocode of the algorithm. We record the wall-clock time of the matching process so that the Ford-Fulkerson runtime can be reported alongside the solution.
+
+\begin{algorithm}[H]
+\caption{Ford-Fulkerson with breadth-first search (Edmonds-Karp)}
+\label{alg:ff}
+\begin{algorithmic}[1]
+\Require directed graph $G = (V, E)$ with capacities $w$, source $s$, sink $t$
+\Ensure the maximum flow value $f$
+\ForAll{$(u, v) \in E$} \Comment{initialize the residual capacities}
+  \State $r(u, v) \gets w(u, v)$
+  \State $r(v, u) \gets 0$
+\EndFor
+\State $f \gets 0$
+\Loop
+  \State find a shortest path $p$ from $s$ to $t$ using breadth-first search over the edges with $r(u, v) > 0$
+  \If{no such path exists}
+    \State \Return $f$
+  \EndIf
+  \State $b \gets \min_{(u, v) \in p} r(u, v)$ \Comment{bottleneck of the path}
+  \ForAll{$(u, v) \in p$} \Comment{push $b$ units of flow along $p$}
+    \State $r(u, v) \gets r(u, v) - b$
+    \State $r(v, u) \gets r(v, u) + b$
+  \EndFor
+  \State $f \gets f + b$
+\EndLoop
+\end{algorithmic}
+\end{algorithm}
+
+To compute the maximum flow, the Ford-Fulkerson algorithm needs a single source, a vertex where all of the flow is created, and a single sink, a vertex where all of the flow is consumed. These vertices are added to the graph so that the source is connected to every customer vertex and the sink to every driver vertex. The weight of the outgoing edges of a source set how many drivers a customer may choose from and the weights of the incoming edges of a sink set the capacity of a driver. Figure~\ref{fig:bipartite} shows the resulting
+bipartite structure with the added source and sink.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[height=0.6\textheight]{figures/bipartite_graph.pdf}
+  \caption{A bipartite customer-driver with the source and sink.}
+  \label{fig:bipartite}
+\end{figure}
+
+The customer-driver matching is read from the residual graph. For every edge $(c, d)$ between a customer $c$ and a driver $d$ in the original graph, the flow used along that edge equals the original capacity minus the remaining residual capacity. If this used flow is strictly positive, we record $(c, d)$ as a matched pair. From these matched pairs, we construct the sets of assignable customers. We record the average number of customers per driver, drivers per customer and also the coverage percent, that is the share of customers that were matched to at least one driver.
+
+\subsection{Per-driver scheduling MILP}
+
+After the matching step, we solve the schedules of each driver separately using mixed-integer linear programming. The matching subproblem provides, for each driver $k$, the set $A_k$ of customers that $k$ is allowed to serve.
+
+\begin{problem}[Scheduling customers for a driver]
+\label{prob:scheduling}
+Let $k$ be a driver with a shift window $[S_k, H_k]$ and an assignable set $A_k$ and let each customer $i \in A_k$ have a wanted pickup time $U_i$ and a ride duration $R_i$. Find a set $C_k \subseteq A_k$ of served customers and a pickup time $t_i$ for each $i \in C_k$ such that
+\begin{enumerate}
+  \item each ride lies within the shift and its pickup delay is bounded: $\max(U_i, S_k) \le t_i \le U_i + E_{\max}$ and $t_i + R_i \le H_k$,
+  \item the rides of driver $k$ do not overlap, and the break between two consecutive rides is at least $B_{\min}$ and at most $B_{\max}$ minutes,
+  \item the last ride ends within $B_{\max}$ minutes of the shift end $H_k$,
+\end{enumerate}
+minimizing the weighted sum
+\[
+D \sum_{i \in C_k} (t_i - U_i)
++ P\,\bigl|A_k \setminus C_k\bigr|
++ I \Bigl( (H_k - S_k) - \sum_{i \in C_k} R_i \Bigr)
+\]
+of the total pickup delay, the number of unserved customers and the idle time of the driver, with given weights $D$, $P$ and $I$.
+\end{problem}
+
+We solve Problem~\ref{prob:scheduling} with an independent time-indexed MILP with Gurobi (\cite{gurobi}) for each driver $k$. Time is discretized into slots of width $\Delta t$, one minute by default. For every customer $i \in A_k$ and every feasible start slot $t$ we introduce a binary variable $x_{i,t} \in \{0, 1\}$ that equals one if and only if customer $i$'s ride starts at slot $t$ on driver $k$. A start slot $t$ is feasible if and only if
+
+\begin{align}
+t \cdot \Delta t        &\geq \max(U_i, S_k), \label{eq:feas-start} \\
+t \cdot \Delta t + R_i  &\leq H_k, \label{eq:feas-end} \\
+t \cdot \Delta t - U_i  &\leq E_{\max}. \label{eq:feas-delay}
+\end{align}
+
+Constraint~\eqref{eq:feas-start} schedules the customer's pickup after both their wanted pickup time and the driver's shift start, \eqref{eq:feas-end} ensures the ride ends before the end of the driver's shift and \eqref{eq:feas-delay} caps the pickup delay at $E_{\max}$. Let $T_i$ denote the set of feasible start slots for customer $i$ on driver $k$ and let $e_{i,t} = t \cdot \Delta t + R_i$ be the end of ride $(i,t)$. Let $N_{i,t} = \{(j, t') : j \in A_k \setminus \{i\},\ t' \in T_j, e_{i,t} < t' \cdot \Delta t \leq e_{i,t} + B_{\max}\}$ be the rides that could follow $(i,t)$, that is, those starting within $B_{\max}$ minutes of its end. Let $r_i = \lceil R_i / \Delta t \rceil$ be the number of slots a ride covers. To enforce a minimum break of $B_{\min}$ minutes between consecutive rides, each ride's time footprint is inflated from $r_i$ to $r_i + b$, where $b = \lceil B_{\min} / \Delta t \rceil$. The MILP is
+
+\begin{align}
+\min \quad &
+D\sum_{i \in A_k} \sum_{t \in T_i} (t \cdot \Delta t - U_i)\, x_{i,t} + P \sum_{i \in A_k} \Bigl(1 - \sum_{t \in T_i} x_{i,t}\Bigr) + I\Bigl((H_k - S_k) - \sum_{i \in A_k} \sum_{t \in T_i} R_i\, x_{i,t}\Bigr) \label{eq:obj} \\
+\text{s.t.} \quad & \sum_{t \in T_i} x_{i,t} \leq 1, \quad \forall i \in A_k, \label{eq:assign} \\
+& \sum_{\substack{i \in A_k,\ t \in T_i \\ t \leq \tau < t + r_i + b}} x_{i,t} \leq 1, \quad \forall \text{ slot } \tau, \label{eq:overlap} \\
+& x_{i,t} \leq \sum_{(j,t') \in N_{i,t}} x_{j,t'}, \quad \forall (i,t) : e_{i,t} + B_{\max} < H_k, \label{eq:succ} \\
+& x_{i,t} \in \{0, 1\}, \quad \forall i \in A_k,\ t \in T_i. \nonumber
+\end{align}
+
+The objective~\eqref{eq:obj} has three terms. The first minimizes total pickup delay, weighted by $D$. The second penalizes each unserved customer with a penalty $P$. The third, weighted by $I$, penalizes the driver's idle time over the shift. Constraint~\eqref{eq:assign} serves each customer at most once and \eqref{eq:overlap} forbids overlapping rides on the same driver by allowing at most one active ride in any slot $\tau$. Constraint~\eqref{eq:succ} bounds the breaks between rides to a maximum of $B_{\max}$ by requiring each ride to have a successor during the subsequent $B_{\max}$ minutes if there are more than $B_{\max}$ minutes of the driver's shift left after the drop-off of that ride. From the solution, we read, for each assigned customer $i$, their chosen start slot and realized pickup delay $\max(0,\, t \cdot \Delta t - U_i)$.
+
+\subsection{Conflict resolution between drivers}
+
+Because each driver's schedule is solved independently, the same customer can be assigned to more than one driver. Thus, we need to resolve all conflicts between drivers so that all customers are served by at most one driver.
+
+\begin{problem}[Conflict resolution]
+\label{prob:conflict}
+For each driver $k \in \mathcal{K}$, let $(C_k, (t_i)_{i \in C_k})$ be the solution of Problem~\ref{prob:scheduling}. A customer $i$ is \emph{contested} if $i \in C_k \cap C_l$ for two distinct drivers $k \ne l$. Find pairwise disjoint served sets $C'_k \subseteq A_k$ and pickup times $t'_i$ for each $i \in C'_k$ such that every $(C'_k, (t'_i)_{i \in C'_k})$ satisfies the constraints of Problem~\ref{prob:scheduling}, minimizing
+\[
+D \sum_{k \in \mathcal{K}} \sum_{i \in C'_k} (t'_i - U_i)
++ P \Bigl( |\mathcal{N}| - \sum_{k \in \mathcal{K}} |C'_k| \Bigr)
++ I \sum_{k \in \mathcal{K}} \Bigl( (H_k - S_k) - \sum_{i \in C'_k} R_i \Bigr),
+\]
+the total objective of Problem~\ref{prob:scheduling} summed over all drivers, with each customer now counted as served if any driver serves them.
+\end{problem}
+
+We solve Problem~\ref{prob:conflict} using a greedy resolution loop. Each customer assigned to at least two drivers is assigned to the driver that achieves the lowest pickup delay. The customer is then removed from the assignable sets and schedules of all other drivers. This already resolves all of the conflicts but is only the first part of the solution to the subproblem.
+
+It is possible that after removing the contested customers from the assignable sets of the drivers, previously unserved customers could now be assigned. Due to this, we run an iterated resolve of the per-driver scheduling problems. In each round, every driver's MILP is rerun on the union of its current assignments and the customers that are still unserved but lie in the driver's assignable set. Any customer a resolved MILP newly assigns is removed from the unserved pool immediately. We stop when a round changes no driver's assignments, when the unserved customer pool fails to shrink between rounds or after a configurable round limit, whichever comes first.
+
+Since the order in which the drivers are processed affects the outcome of the greedy resolve loop, we run the conflict resolution with five different driver ordering and keep the best result. The five comparators are ascending index, ascending number of customers, descending number of customers, ascending number of conflicts and descending number of conflicts. Algorithm~\ref{alg:conflict} summarizes the full procedure.
+
+\begin{algorithm}[H]
+\caption{Conflict resolution between drivers}
+\label{alg:conflict}
+\begin{algorithmic}[1]
+\Require per-driver schedules from the first MILP pass, assignable sets $A_k$
+\Ensure an assignment of each customer to at most one driver
+\ForAll{customers $i$ chosen by at least one driver} \Comment{greedy resolution}
+  \State assign $i$ to the choosing driver with the lowest pickup delay for $i$, breaking ties by the lowest driver index
+\EndFor
+\ForAll{driver orderings $\sigma$ of the five comparators}
+  \State start from the greedy assignment; $Q \gets$ unserved customers
+  \For{$\mathrm{round} = 1, \dots, \mathrm{round\ limit}$} \Comment{iterated re-solve}
+    \ForAll{drivers $k$ in the order $\sigma$}
+      \State $C_k \gets \{\text{customers currently assigned to } k\} \cup (Q \cap A_k)$
+      \If{$C_k$ differs from the input of $k$'s previous solve}
+        \State re-solve driver $k$'s MILP over $C_k$
+        \State assign each customer served by the new schedule to $k$ and remove them from $Q$
+        \State return each customer no longer served by $k$ to $Q$
+      \EndIf
+    \EndFor
+    \If{no driver's schedule changed during the round}
+      \State \textbf{break}
+    \EndIf
+    \If{$Q$ did not shrink during the round}
+      \State \textbf{break}
+    \EndIf
+  \EndFor
+\EndFor
+\State \Return the assignment of the ordering with the lowest objective value
+\end{algorithmic}
+\end{algorithm}

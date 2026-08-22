@@ -1,0 +1,28 @@
+\section{Introduction}
+
+\subsection{Context}
+
+The ride-sharing problem is fundamentally about correctly connecting two groups of people. One group is the customers, who need a ride from their current position to somewhere else, and the other is the drivers, each of whom owns a vehicle that they can use to take a customer from their origin to their destination. In the past, ride-sharing mostly meant customers calling a taxi service to order a taxi to their location with a destination. Nowadays, the process is much more real-time and complex. Ride-sharing platforms use algorithms to assign drivers to customers as efficiently as possible. This can mean optimizing potentially thousands of rides each minute.
+
+The ride-sharing problem covers a larger family of problems. For example, ride-sharing can mean pooling, in which several customers share the same vehicle for part of their trips, or it can mean ride-hailing, in which each customer gets their own vehicle, and the ride-sharing platform chooses which driver transports which customers. The problem can also vary in what information is available before solving the problem. For example, we may have the pickup times and origin and destination locations of all drivers immediately, or we may receive them dynamically over time. While the details differ in each variation, the core of the problem stays the same: how to assign a set of customer requests to a set of vehicles. This thesis investigates a more static version of the problem: we know all parameters for each customer before solving, but we solve the drivers' schedules separately.
+
+The strategy to solve the problem requires two decisions. First, we need to assign customers to drivers in a suitable way. Customers may have preferences for the kind of driver or vehicle they would like to travel with. For example, these can include age, gender, vehicle brand, and whether the vehicle is electric. Some preferences can be deal-breakers, meaning a customer will not travel with some driver. Second, we need to figure out ride timing. Rides must be ordered so, for example, that each customer does not arrive too late at their destination and the driver does not have to travel too far without a customer. These two decisions have well-known mathematical problem definitions. The assignment is a matching problem, and the timing is a scheduling problem; both are combinatorial problems that are difficult to solve using known methods. While difficult individually, the decisions also constrain each other: a customer that is not matched to a driver cannot be scheduled for that driver.
+
+The objective is to find a good-enough compromise between two groups of people with different priorities. Customers want their driver to arrive exactly when they are ready and for the ride itself to be fast, while drivers want to maximise their earnings. These interests need to be balanced in one objective function.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{figures/ridesharing_illustration.pdf}
+  \caption{Illustration of the ride-sharing problem}
+  \label{fig:ride-sharing-illustration}
+\end{figure}
+
+Figure~\ref{fig:ride-sharing-illustration} illustrates the setting in a simple scenario. Customers wait at their pickup locations for a driver to be selected, and drivers wait for rides to be assigned. In reality, hundreds of customers may be waiting at a given moment, along with tens of drivers. Also, the number of locations is much larger in reality.
+
+Simply put, the problem studied in this thesis is the following: each customer provides their desired pickup time, destination location, and a list of drivers they are willing to be assigned to. Each driver has a shift with a fixed start and end time. A solution consists of assigning customers to drivers and then determining the best schedule for each driver. In our problem, not all customers will be served. The solution's performance is measured by how many customers were not served, how long customers waited for pickup after their desired pickup times, and how much of the shift drivers spent idle.
+
+\subsection{Motivation}
+
+\subsection{Structure}
+
+The rest of this thesis is organized in the following way. Section~\ref{sec:literature-review} reviews the earlier work on ride-sharing and matching problems. Section~\ref{sec:methods} presents the methodology of the thesis. It introduces the problem statement, the three-step pipeline, the maximum-flow formulation of the matching problem, the mixed-integer linear program that schedules each single driver and finally the conflict resolution step that ensures each customer is assigned to only one driver. Section~\ref{sec:experimental-settings} describes the synthetic test instances, the parameter values used in all of the instances and the final results of each step. Section~\ref{sec:conclusion} summarizes the findings, discusses the limitations of the pipeline and the formulation and outlines possible directions for future research.

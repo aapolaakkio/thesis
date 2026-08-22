@@ -1,0 +1,555 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                            %%
+%% opintnaytepohja.tex versio 3.21 (2023/12/19)                               %%
+%% Opinnäytepohja käytettäväksi aaltothesis.sty (versio 3.20) -tyylitiedoston %%
+%% kanssa.                                                                    %%
+%% Toimiakseen paketti tarvitsee pdfx.sty v. 1.5.84 (2017/05/18) tai uudempi. %% 
+%% The LaTeX template file to be used with the aaltothesis.sty (version 3.20) %%
+%% style file.                                                                %%
+%% This package requires pdfx.sty v. 1.5.84 (2017/05/18) or newer.            %% 
+%%                                                                            %%
+%% This is licensed under the terms of the MIT license below.                 %%
+%%                                                                            %%
+%% Latest version by Olli Herrala.                                            %%
+%%                                                                            %%
+%% Copyright 2023 Improvements to switching between languages by Olli Herrala %% 
+%% olli.herrala@aalto.fi                                                      %%
+%% Copyright 2018-2022 Natbib support and tools for mathematical notation     %%
+%% as well as style changes to match the Department of Mathematics and        %%
+%% Systems Analysis guidelines in the template opinnaytepohja.tex             %%
+%% by Juho Roponen juho.roponen@aalto.fi                                      %%
+%% Copyright 2017-2018, by Luis R.J. Costa, luis.costa@aalto.fi,              %%
+%% Copyright 2017-2018 Swedish translations in aaltothesis.cls by Elisabeth   %%
+%% Nyberg, elisabeth.nyberg@aalto.fi and Henrik Wallén,                       %%
+%% henrik.wallen@aalto.fi.                                                    %%
+%% Copyright 2017-2018 Finnish documentation in the template opinnatepohja.tex%%
+%% by Perttu Puska, perttu.puska@aalto.fi, and Luis R.J. Costa.               %%
+%%                                                                            %%
+%% Permission is hereby granted, free of charge, to any person obtaining a    %%
+%% copy of this software and associated documentation files (the "Software"), %%
+%% to deal in the Software without restriction, including without limitation  %%
+%% the rights to use, copy, modify, merge, publish, distribute, sublicense,   %%
+%% and/or sell copies of the Software, and to permit persons to whom the      %%
+%% Software is furnished to do so, subject to the following conditions:       %%
+%% The above copyright notice and this permission notice shall be included in %%
+%% all copies or substantial portions of the Software.                        %%
+%% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR %%
+%% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   %%
+%% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL    %%
+%% THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER %%
+%% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING    %%
+%% FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER        %%
+%% DEALINGS IN THE SOFTWARE.                                                  %%
+%%                                                                            %%
+%%                                                                            %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                            %%
+%%                                                                            %%
+%% Esimerkki opinnäytteen tekemisestä LaTeX:lla                               %%
+%% Alkuperäinen versio ja nykinen kehitystyö Luis Costa, muutokset            %%
+%% suomenkieliseen tekstipohjaan Perttu Puska.  							  %%
+%% Tämän version on systeemianalyysin kanditöihin sopivaksi muokannut         %%
+%% Juho Roponen. Uutena lisätty mm. fiplainnat.bst, joka                      %%
+%% mahdollistaa suomenkielisten lähteiden kätevän käsittelyn    			  %%
+%% .bib-tiedostolla.                                                          %%
+%% Ruotsinkielen tuki lisätty 15092014                                        %%
+%% PDF/A-1b -tuki lisätty 15092017                                            %%
+%% PDF/A-2b -tuki lisätty 24042018                                            %%
+%%                                                                            %%
+%% Tähän esimerkkiin kuuluu tiedostot                                         %%
+%%        opinnaytepohja.tex (versio 3.20) (opinnäytetyön pohja)              %%
+%%        aaltothesis.cls (versio 3.20)                                       %%
+%%        linediagram.eps                                                     %%
+%%        curves.eps                                                          %%
+%%        linediagram.pdf                                                     %%
+%%        curves.pdf                                                          %%
+%%        ledspole.jpg                                                        %%
+%%                                                                            %%
+%%                                                                            %%
+%% Kääntäminen Linuxissa joko                                                 %%
+%% pdflatex: (suositeltava tapa)                                              %%
+%%             $ pdflatex opinnaytepohja                                      %%
+%%             $ pdflatex opinnaytepohja                                      %%
+%%                                                                            %%
+%%   Tuloksena on tiedosto opinnaytepohja.pdf, joka on PDF/A-standardin       %%
+%%   mukainen, jos olet valinnut oikeat \documentclass -optiot (kts. alla) ja %%
+%%   ja käyttämäsi kuvatiedostoissa ei ole ongelmia.                          %%
+%%                                                                            %%
+%% Tai                                                                        %%
+%% latex: (ei ole suositeltava tapa)                                          %%
+%%             $ latex opinnaytepohja                                         %%
+%%             $ latex opinnaytepohja                                         %%
+%%                                                                            %%
+%%   Tuloksena on tiedosto opinnayte.dvi, joka muutetaan ps-muotoon           %%
+%%   seuraavasti                                                              %%
+%%                                                                            %%
+%%             $ dvips opinnaytepohja -o                                      %%
+%%                                                                            %%
+%%   ja edelleen pdf-muotoon seuraavasti                                      %%
+%%                                                                            %%
+%%             $ ps2pdf opinnaytepohja.ps                                     %%
+%%                                                                            %%
+%%   Tämä pdf EI ole pdf/a -tiedosto vaan se pitää muuttaa sellaiseksi esim.  %%
+%%   Acrobat Pro- tai PDF-XChange -ohjelmalla.                                %%
+%%                                                                            %%
+%%                                                                            %%
+%% Selittävät kommentit on tässä esimerkissä varustettu %%-merkeillä ja       %%
+%% muutokset, joita käyttäjä voi tehdä, on varustettu %-merkeillä             %%
+%%                                                                            %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% MIKÄ on PDF/A?
+%%
+%% PDF/A on ISO-standardoitu versio pdf-tiedostosta. Standardin tavoite on, että
+%% tiedosto on toistettavissa myös pitkänkin ajan kuluessa. PDF/A eroaa pdf:stä
+%% siinä, että se sallii vain sellaisia pdf-ominaisuuksia, jotka tukevat
+%% tiedoston pitkäaikaista arkistointia. Esim. PDF/A vaati, että kaikki käytetyt
+%% fontit ovat mukana tiedostossa, mutta tavallisessa pdf:ssä voi olla niin,
+%% että tiedostossa on vain linkki tiedostonlukijan tietokonejärjestelmän
+%% fontteihin. PDF/A vaatii myös tietoa mm. värimäärittelystä ja käytetystä
+%% salauksesta.
+%% Tällä hetkellä PDF/A standardeja on kolme:
+%% PDF/A-1: perustana PDF 1.4, standardi ISO19005-1, julkaistu vuonna 2005.
+%%          Kaikki perusvaatimukset pitkäaikaiseen arkistointiin käytössä.
+%% PDF/A-2: perustana PDF 1.7, standardi ISO19005-2, julkaistu vuonna 2011.
+%%          Yllä olevan lisäksi tukee mm. OpenType-fonttien sisällyttämistä,
+%%          läpinäkyvyyttä värimäärittelyssä ja digitaalisia allekirjoituksia.
+%% PDF/A-3: perustana PDF 1.7, standardi ISO19005-3, julkaistu vuonna 2012.
+%%          Eroaa edellisestä ainoastaan siinä, että se sallii missä tahansa
+%%          tiedostoformaatissa (esim. xml, csv, cad, taulukkolaskentaformaatit,
+%%          tekstinkäsittelyformaatit) olevien tiedostojen sisällyttämisen.
+%% PDF/A-1 tiedostot eivät välttämättä ole PDF/A-2 -yhteensopivia eikä PDF/A-2
+%% tiedostot ole PDF/A-1 -yhteensopivia.
+%% Kaikista yllä olevista PDF/A-standardeista on kaksi tasoa:
+%% b: (basic) vaatii, että tiedoston visuaalinen ilme on luotettavasti
+%%    toistettavissa.
+%% a: (accessible) b-tason vaatimuksien lisäksi, määrittelee kuinka saavutettava
+%%    pdf-tiedosto on mm. vammaisteknologiaa hyödynttävissä ohjelmistoissa 
+%%    (esim. kosketusruutua käytettävissä laitteissa).
+%% Lisätietoa PDF/A:sta esim. https://en.wikipedia.org/wiki/PDF/A 
+%%
+%%
+%% MINKÄ PDF/A -standardin mukaan teen opinnäytetyöni?
+%%
+%% Ensisijaisesti PDF/A-1b -standardin mukaan. Kuvaajat ja kuvat mitä
+%% tyypillisesti käytetään opinnäytetyössä eivät tarvitse
+%% läpinäkyvyysominaisuuksia. Perus '2D' -näkymä on riittävä. Opinnäytetyössä
+%% käytettävät fontit on määritelty tässä pohjassa eikä niitä pidä muuttaa. Jos
+%% käytät kuvia, jossa läpikäkyvyysominaisuuksillä on merkitystä, käytä PDF/A-2b
+%% -standardia. Älä käytä PDF/A-3b -standardia opinnäytetyössäsi.
+%%
+%%
+%% MITKÄ kuvaformaatteja voin käyttää PDF/A-tiedoston tekemisessä?
+%%
+%% Kun käytät pdflatexia työsi kääntämisessä suosi pdf-formaattia, mutta voit
+%% käytä myös jpg- ja/tai png-formmaatia eteenkin valokuvissa.
+%% Pdf-muotoisten kuvien kanssa voi tulla ongelmia PDF/A -yhteesopivuuden
+%% kanssa, mm. jos fontit eivät ole upotettu tiedostoon.
+%% Älä käytä PDF/A-formaattia kuvatiedostoissa.
+%% Jos kuitenkin käytät perus latexia työsi kääntämisessä, ainoa sallittu
+%% kuvaformaatti on eps. ÄLÄ käytä ps-formaattia kuvissasi.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%% MUOKATTAVA OSUUS ALKAA TÄSTÄ %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% KÄYTÄ näistä yhtä:
+%% * ensimmäinen, jos käytät pdflatexia, joka kääntää tekstin suoraan
+%%   pdf/a-tiedostoksi ja haluat julkaista opinnäytetyösi verkossa
+%% * toinen, jos haluat tulostaa opinnäytteesi kansitettavaksi
+%% * kolmas jos haluat tuottaa ps-tiedostoa ja siitä pdf/a:ta
+%%
+%% Kirjoita a.o. \documentclass optioiksi
+%% * korkeakoulusi näistä: arts, biz, chem, elec, eng, sci
+%% * editorisi käyttämä merkkikoodaustapa: utf8, latin1
+%% * opinnäytetyön kieli: finnish, english, swedish
+%% * tee arkistointikelpoinen PDF/A-1b tai PDF/A-2b pdf-tiedosto: a-1b, a-2b
+%%                         (pdflatex tuottaa tavallisen metadataa sisältävän
+%%                          pdf-tiedoston ilman a-*b optiota)
+%% * verkkoon menevä symmetrinen taitto, sinisellä hypertekstillä: online  
+%%                         (oletusarvo on leveä marginaali sivun sidonta
+%%                          puolella ja musta hyperteksti)
+%% * kaksipuolinen tulostus: twoside (oletusarvo on yksipuolinen tulostus)
+
+
+\documentclass[english, 12pt, a4paper, sci, utf8, a-1b, online]{aaltothesis}
+%\documentclass[finnish, 12pt, a4paper, sci, utf8, a-1b]{aaltothesis}
+
+
+%% Pseudocode floats (Algorithm environment + algorithmicx commands).
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage{booktabs}
+
+\usepackage{graphicx}
+\usepackage{ifthen}
+
+\usepackage{mathrsfs}
+%% Matematiikan fontteja, symboleja ja muotoiluja lisää, näitä tarvitaan usein
+\usepackage{amsfonts, amssymb, amsbsy, amsmath, mathrsfs, amsthm}
+
+\newcommand{\comments}[1]{\textcolor{magenta}{#1}}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section] 
+\newtheorem{maaritelma}[definition]{Määritelmä}
+\theoremstyle{plain}
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{lause}[definition]{Lause}
+\newtheorem{sats}[definition]{Sats}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{corollary}[definition]{Corollary}
+\newtheorem{seuraus}[definition]{Seurauslause}
+\newtheorem{foljdsats}[definition]{Följdsats}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{propositio}[definition]{Propositio}
+\theoremstyle{remark}
+\newtheorem{remark}[definition]{Remark}
+\newtheorem{huomautus}[definition]{Huomautus}
+\newtheorem{anmarkning}[definition]{Anmärkning}
+\newtheorem{problem}{Problem}
+
+
+%% Lähdeluettelon luomiseen
+%% MainLang-muuttuja tulee aaltothesis.cls -tiedostosta ja sisältää 
+%% sen kielen joka yllä on annettu documentclass-rivin parametrina
+\usepackage[\MainLang]{babel}
+\usepackage{natbib}
+
+\ifthenelse{\equal{\MainLang}{finnish}}{
+\bibliographystyle{fiplainnat}
+}{\ifthenelse{\equal{\MainLang}{english}}{
+\bibliographystyle{plainnat}
+}{\ifthenelse{\equal{\MainLang}{swedish}}{
+\bibliographystyle{seplainnat}
+}}{}}
+
+\setcitestyle{authoryear,open={(},close={)}}
+% use the below citestyle instead of the previous line if you want to use number citations as is common in mathematics: 
+%\setcitestyle{numbers,open={[},close={]},comma}
+
+
+%% Korjaa vastaamaan korkeakouluasi, jos automaattisesti asetettu nimi on
+%% virheellinen. Annettu korkeakoulun nimi ei tule Aalto-logoon.
+%%
+%% Change the school field to specify your school if the automatically set name
+%% is wrong. The specified school name will not be contained in the Aalto logo.
+% \school{Korkeakouluni}
+
+%% Korjaa seuraavat vastaamaan koulutusohjelmaasi
+%%
+\degreeprogram{Bachelor's Programme in Science and Technology}
+
+%%
+
+
+
+%% Pääaineesi
+\major{Mathematics and Systems Sciences}
+
+%% Pääainekoodi
+%%
+\code{SCI3029}
+%%
+
+%% 
+%% Valitse yksi näistä kolmesta, kandityön tapauksessa BSc 
+%%
+\univdegree{BSc}
+%\univdegree{MSc}
+%\univdegree{Lic}
+%%
+
+%% Oma nimi
+%%
+\thesisauthor{Aapo Laakkio}
+%%
+
+%% Opinnäytteen otsikko tulee tähän.
+%% Jos LaTeX ryhmittelee otsikon huonosti, voit joutua
+%% pakottamaan rivinvaihdon \\ -kontrollimerkillä.
+%% Tällöin...
+%% - Muista että otsikkoja ei tavuteta! 
+%% - Jos otsikossa on ja-sana, se ei jää rivin viimeiseksi sanaksi vaan aloittaa
+%% uuden rivin.
+%% - Anna ostikko uudelleen ilman rivinvaihtomerkkiä valinnaisena argumenttina
+%% hakasuluissa. Näin tehdään, koska otsikko on osaa pdf/a-tiedostossa olevaa
+%% metadataa, ja metadatassa ei saa olla rivinvaihtomerkkiä.
+%%
+\thesistitle{Scheduling in a ride sharing scenario}
+%\thesistitle[Opinnäytteen otsikko]{Opinnäyteen\\ otsikko}
+%%
+
+%%
+\place{Espoo}
+%%
+
+%% Kandidaatintyön päivämäärä on sen esityspäivämäärä! 
+%% 
+\date{xx.9.2026 {\color{red}KORJAA OIKEAKSI}}
+%%
+
+%% Kandidaatin- tai diplomityön valvoja.
+%% Huomaa tittelissä "\" -merkki pisteen jälkeen, ennen välilyöntiä ja
+%% seuraavaa merkkijonoa. 
+%% Näin kerrotaan LaTeXille, että kyseessä ei ole lauseen loppu, jonka jälkeen
+%% tulee hieman pidempi väli vaan halutaan tavallinen väli.
+%%
+\supervisor{Dr. Fernando Dias}
+%%
+
+%% Kandidaatintyön ohjaaja(t) tai diplomityön ohjaaja(t). Ohjaajia saa olla
+%% korkeintaan kaksi. Todennäköisimmät tittelit suomeksi ja englanniksi:
+%% Tekniikan tohtori: TkT / D.Sc. (Tech.) 
+%% Diplomi-insinööri: DI / M.Sc. (Tech.)
+\advisor{Dr. Fernando Dias}
+%\advisor{DI Tina Tutkija}
+%%
+
+
+%% Tiivistelmä työn kielellä:
+%% Kaikki tiivistelmässä tarvittava tieto (nimesi, työnnimi, jne.) käytetään
+%% niin kuin se on yllä määritelty.
+%%
+%% Tiivistelmän avainsanat:
+%% Huom! Avainsanat erotetaan tässä toisistaan \spc -makrolla jotta 
+%% ne ovat metadatassa mukavassa muodossa
+%% 
+\keywords{ride-sharing\spc scheduling\spc bipartite matching\spc maximum flow\spc mixed-integer programming\spc heuristics}
+%%
+
+%% Tiivistelmän tekstiosa. Tämä teksti sisältyy pdf-tiedoston metadataan ja tulee
+%% myös tiivistelmälomakkeeseen. Kirjoita tämä tiivistelmä työn kielellä.
+%%
+\thesisabstract{
+TIIVISTELMÄ ENGLANNIKSI TÄHÄN.
+}
+%%
+
+%% Tekijänoikeusteksti. Tekijänoikeus on tekijällä riippumatta siitä onko
+%% copyright -merkintä näkyvissä vai ei. Halutessasi voit jakaa työsi Creative
+%% Commons -lisensillä (katso creativecommons.org), jolloin lisenssitekstin on
+%% oltava näkyvissä. Kirjoita tähän haluamasi tekijänoikeustekti. Se kirjautuu
+%% myös pdf-tiedoston metadataan.
+%% Syntaksi:
+%% \copyrigthtext{metadatateksti}{sivulle näkyviin tuleva teksti}
+%%
+%% A.o. metadataan menevässä tekstissä on käytettävä \noexpand -makroa ennen
+%% \copyright -erikoismerkkiä ja lisäksi makrot (tässä \copyright ja \year) on
+%% erotettava seuraavasta tekstistä \ -merkillä (välilyöntimerkki).
+%% \copyrighttext-makron argumentissa olevat makrot automaattisesti hakevat
+%% vuosiluvun ja tekijän nimi.
+%% (Huom! \ThesisAuthor on aaltothesis.cls -tyylitiedoston sisäinen makro).
+%% Toki saman tekstin olisi voinut kirjoittaa yksinkertaisesti näin:
+%% \copyrighttext{Copyright \noexpand\copyright\ 2018 Teemu Teekkari}
+%% {Copyright \copyright{} 2018 Teemu Teekkari}
+%%
+\copyrighttext{Copyright \noexpand\copyright\ \number\year\ \ThesisAuthor}
+{Copyright \copyright{} \number\year{} \ThesisAuthor 
+\\\\The document can be stored and made available to the public on the open internet pages of Aalto University.\\
+All other rights are reserved.
+}
+%% Jos et halua työtäsin näkyviin systislabran verkkosivuille, poista 
+%% copyright noticesta lupa jakaa työ Aallon verkkosivuilla.
+%%
+
+%% Voit estää LaTeXia kirjoittamasta xmpdata-tiedostoon (sisältää pdf
+%% -tiedostoon kirjoitettavaa metadataa) asettamalla writexmpdatafile lipun
+%% arvoksi 'false'. Tämä mahdollistaa sen, että voit kirjoittaa metadataa
+%% suoraan oikeassa muodossa tiedostoon opinnaytepohja.xmpdata.
+%%
+%\setboolean{writexmpdatafile}{false}
+%%
+
+
+%% Kaikki mikä paperille tulostuu, on tämän jälkeen
+\begin{document}
+%% Tehdään kansilehti
+%%
+
+    \definecolor{aaltoBlack}{RGB}{0,0,0}%
+    \definecolor{aaltoGray}{RGB}{140,133,123}%
+    \definecolor{aaltoRed}{RGB}{239,51,64}%
+    \definecolor{aaltoBlue}{RGB}{0,94,184}%
+    \definecolor{aaltoYellow}{RGB}{255,205,0}%
+    % Additional colors
+    \definecolor{aaltoPurple}{RGB}{117,59,189}%
+    \definecolor{aaltoGreen}{RGB}{0,150,94}%
+    \definecolor{aaltoLightGreen}{RGB}{120,190,32}%
+    \definecolor{aaltoOrange}{RGB}{255,103,31}%
+    \definecolor{aaltoLightOrange}{RGB}{255,165,0}%
+    \definecolor{aaltoFuchsia}{RGB}{187,22,163}%
+\pagecolor{aaltoOrange} %Voit poistaa tämän, jollet halua värillistä kansilehteä
+{%\color{white}
+\uselogo{black}{''}
+
+\makecoverpage{}
+}
+\nopagecolor
+\uselogo{black}{''}
+
+%% Tehdään tekijänoikeusteksti näkyväksi.
+%% Halutessasi voit jättää tekijänoikeustekstin pois luettavasta pdf
+%% -tiedostosta. Tämä voi tuntua hyvältä ajatukselta paperille tulostetulla
+%% versiossa eteenkin, jos sivun ainoa teksti on "Copyright (c) vvvv Teemu 
+%% Teekkari". Suositus on kuitenkin jättää teksti näkyviin.
+%%
+\makecopyrightpage{}
+
+%% Tiivistelmä työn kielellä
+%% Kaikki tiivistelmässä tarvittava tieto (nimesi, työnnimi, jne.) käytetään
+%% niin kuin se on yllä määritelty.
+%%
+%% Tiivistelmän tekstiosa
+\begin{abstractpage}
+\abstracttext{}
+\end{abstractpage}
+
+%% \thesisabstract -makrossa kirjoitettu teksti on tallennettu makroon
+%% \abstracttext, jolloin voit siirtää metadataan menevän tekstin 
+%% sellaisenaan näin:
+%%
+%\begin{abstractpage}
+%	\abstracttext{}
+%\end{abstractpage}
+
+
+
+
+%% Pakotetaan uusi sivu varmuuden vuoksi, jotta tiivistelmät
+%% eivät tule vahingossakaan samalle sivulle
+\newpage
+%% Opinnäytteen toinen tiivistelmä 
+%% Mikäli opinnäytteen kieli on englanti, kirjoitetaan tämä 
+%% tiivistelmä koulusivistyskielellä (suomi/ruotsi).
+%% Mikäli taas opinnäyte on kirjoitettu koulusivistyskielellä,
+%% suositellaan englanninkielisen tiivistelmän kirjoittamista.
+%%
+%% Päivitetään metatieto uudelle kielelle.
+\thesistitle{Scheduling in a ride sharing scenario}
+\supervisor{Dr. Fernando Dias}
+\advisor{Dr. Fernando Dias}
+%\advisor{MSc\ Tiina Tutkija}
+\degreeprogram{Teknistieteellinen kandidaattiohjelma}
+\major{Matematiikka ja systeemitieteet}
+%% Avainsanoja ei tarvitse tässä erottaa \spc -makrolla.
+\keywords{kimppakyyti, aikataulutus, kaksijakoinen sovitus, maksimivirtaus, sekalukuoptimointi, heuristiikat}
+%% Tiivistelmän tekstiosa
+\begin{abstractpage}[finnish] % finnish/swedish/english tarpeen mukaan
+TIIVISTELMÄ SUOMEKSI TÄHÄN
+\end{abstractpage}
+
+%% Vastaavasti ruotsinkielinen tiivistelmä:
+%% Opinnäytteen ostikko ruotsiksi.
+% \thesistitle{Arbetets titel}
+% \supervisor{Prof.\ {\color{red}VALVOVAN PROFESSORIN NIMI}}
+% \advisor{TkD\ {\color{red}OHJAAJAN NIMI}}
+% \degreeprogram{Kandidatprogrammet i teknikvetenskap}
+% \major{Matematik och systemvetenskap}
+%% Abstract keywords
+% \keywords{Nyckelord på svenska, Temperatur}
+%% Abstract text
+% \begin{abstractpage}[swedish]
+%  Sammandrag på svenska.
+% \end{abstractpage}
+
+%% Esipuhe 
+%%
+%% Tämä osio on vapaaehtoinen.
+%%
+%\mysection{Esipuhe}
+%
+%I would like to thank Fernando Dias for his great advisor work and support in completing the thesis
+%
+%\vspace{5cm}
+%Otaniemi, 31.8.2018
+%
+%\vspace{5mm}
+%{\hfill Aapo Laakkio \hspace{1cm}}
+
+%% Pakotetaan varmuuden vuoksi esipuheen jälkeinen osa alkamaan uudelta sivulta
+%\newpage
+
+
+%% Sisällysluettelo
+\thesistableofcontents
+
+
+%% Symbolit ja lyhenteet
+%\mysection{Symbolit ja lyhenteet}
+%
+%\subsection*{Symbolit}
+%
+%\begin{tabular}{ll}
+%$\mathbf{B}$  & magneettivuon tiheys  \\
+%$c$              & valon nopeus tyhjössä $\approx 3\times10^8$ [m/s]\\
+%$\omega_{\mathrm{D}}$    & Debye-taajuus \\
+%$\omega_{\mathrm{latt}}$ & hilan keskimääräinen fononitaajuus \\
+%$\uparrow$       & elektronin spinin suunta ylöspäin\\
+%$\downarrow$     & elektronin spinin suunta alaspäin
+%\end{tabular}
+%
+%\subsection*{Operaattorit}
+%
+%\begin{tabular}{ll}
+%$\nabla \times \mathbf{A}$              & vektorin $\mathbf{A}$ roottori\\
+%$\displaystyle\frac{\mbox{d}}{\mbox{d} t}$ & derivaatta muuttujan $t$ 
+%suhteen\\[3mm]
+%$\displaystyle\frac{\partial}{\partial t}$  & osittaisderivaatta muuttujan $t$ 
+%suhteen \\[3mm]
+%$\sum_i $                       & summa indeksin $i$ yli\\
+%$\mathbf{A} \cdot \mathbf{B}$    & vektorien $\mathbf{A}$ ja $\mathbf{B}$ 
+%pistetulo
+%\end{tabular}
+%
+%\subsection*{Lyhenteet}
+%
+%\begin{tabular}{ll}
+%AC         & vaihtovirta \\
+%APLAC      & an object-oriented analog circuit simulator and design tool \\
+%           & (originally Analysis Program for Linear Active Circuits) \\
+%BCS        & Bardeen-Cooper-Schrieffer \\ %% tavuviiva - nimien välissä 
+%DC         & tasavirta \\
+%TEM        & transverse eletromagnetic
+%\end{tabular}
+
+
+%% \clearpage on melkein samanlainen kuin \newpage, mutta flushaa myös LaTeX:n
+%% floatit 
+%% 
+\cleardoublepage
+
+%% Leipäteksti alkaa
+%% \input-rivi korvautuu määritellyn tiedoston sisällöllä, tämä on helppo tapa
+%% tehdä tiedostorakenteesta selkeämpi sen sijaan että koko leipäteksti olisi
+%% päätiedostossa. Suositeltavaa on tehdä jokaiselle luvulle oma tiedosto ja 
+%% nimetä ne järkevästi, alla esimerkki viidellä luvulla laitoksen 
+%% kirjoitusohjeita mukaillen
+
+\input{sections/1-introduction}
+\input{sections/2-literature-review}
+\input{sections/3-methods}
+\input{sections/4-experimental-settings}
+\input{sections/5-conclusion}
+
+
+%% LÄHDELUETTELO
+%%  BibTeX-tiedoston kokoaminen onnistuu näppärästi esim. 
+%%  Firefoxin/Chromen Zotero-lisäosalla http://www.zotero.org/
+%%  joka osaa poimia viitteet suoraan Google Scholarista.
+
+%% Ladataan library.bib
+\bibliography{library}
+
+%% Liitteet
+%% Poista a.o. \clearpage-, \thesisappendix- ja input -makrot, jos liiteitä ei ole.
+\clearpage
+\thesisappendix
+
+\input{sections/A-attachments}
+
+\end{document}
