@@ -6,7 +6,7 @@ The problem is split into three subproblems that are solved individually in sequ
 
 1. **Matching** - customers state which drivers they prefer. The preference graph is bipartite, so a max-flow computation (Ford-Fulkerson with BFS augmenting paths; Edmonds-Karp) gives an assignable customer set `A_k` for every driver.
 2. **Scheduling** - a time-indexed MILP per driver, run over that driver's `A_k`. Minimizes customers' pickup delays, unserved customers and the driver's idle time, subject to the driver's shift, a maximum delay cap, and minimum/maximum breaks between consecutive rides.
-3. **Conflict resolution** — the per-driver MILPs run independently, so a customer can be picked by several drivers. A greedy conflict resolution pass keeps the driver with the lowest delay. After this the schedules iteratively resolved with five driver orderings and the lowest total objective wins.
+3. **Conflict resolution** — the per-driver MILPs run independently, so a customer can be picked by several drivers. A greedy conflict resolution pass keeps the driver with the lowest delay. After this the schedules are iteratively resolved with five driver orderings and the lowest total objective wins.
 
 Distances are not modelled: a ride occupies its duration `R_i` and travel between drop-off and the next pickup is approximated by the minimum break `B_min`.
 
