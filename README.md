@@ -1,19 +1,19 @@
 # Ride-sharing scheduling pipeline
 
-Assigning customers to drivers and building each driver's daily schedule. The repository holds both the implementation (`kandi/`) and the thesis source (`main.tex`, `sections/`).
+Assigning customers to drivers and scheduling them to obtain each driver's daily schedules. This repository has the code necessary for reproduction (`kandi/`) as well as the thesis source (`main.tex`, `sections/`).
 
-The problem is split into three subproblems, solved in sequence:
+The problem is split into three subproblems that are solved individually in sequence:
 
-1. **Matching** — customers state which drivers they will ride with. The preference graph is bipartite, so a max-flow computation (Ford-Fulkerson with BFS augmenting paths, i.e. Edmonds-Karp) yields an assignable customer set `A_k` for every driver, subject to per-side capacities.
-2. **Scheduling** — one time-indexed MILP per driver (Gurobi), over that driver's `A_k`. Minimizes pickup delay, unserved customers and idle time, subject to the shift window, a delay cap, and minimum/maximum breaks between consecutive rides.
-3. **Conflict resolution** — the per-driver MILPs run independently, so a customer can be picked by several drivers. A greedy pass keeps the driver with the lowest delay, then the schedules are re-solved iteratively. Five driver orderings are tried and the lowest total objective wins.
+1. **Matching** - customers state which drivers they prefer. The preference graph is bipartite, so a max-flow computation (Ford-Fulkerson with BFS augmenting paths; Edmonds-Karp) gives an assignable customer set `A_k` for every driver.
+2. **Scheduling** - a time-indexed MILP per driver, run over that driver's `A_k`. Minimizes customers' pickup delays, unserved customers and the driver's idle time, subject to the driver's shift, a maximum delay cap, and minimum/maximum breaks between consecutive rides.
+3. **Conflict resolution** — the per-driver MILPs run independently, so a customer can be picked by several drivers. A greedy conflict resolution pass keeps the driver with the lowest delay. After this the schedules iteratively resolved with five driver orderings and the lowest total objective wins.
 
-Distances are not modelled: a ride occupies its duration `R_i`, and travel between drop-off and the next pickup is approximated by the minimum break `B_min`.
+Distances are not modelled: a ride occupies its duration `R_i` and travel between drop-off and the next pickup is approximated by the minimum break `B_min`.
 
 ## Requirements
 
-- Python 3.13 (the pinned versions in `requirements.txt` are what the results were produced with)
-- A Gurobi license — the free size-limited license is not enough for the instances in the thesis; academic licenses are free
+- Python 3.13
+- A Gurobi license
 
 ```bash
 python3 -m venv .venv
@@ -22,8 +22,7 @@ python3 -m venv .venv
 
 ## Running
 
-`pipeline.ipynb` is a thin demo notebook; the implementation lives in
-`kandi/`, so edit the package and re-run the cells.
+Edit the notebook (`pipeline.ipynb`) or run directly
 
 ```python
 from kandi import run_complex_test, run_complex_test_sweep
@@ -45,16 +44,6 @@ results = run_complex_test_sweep(
 Each run generates its graph into `graphs/` and writes per-instance metrics to a timestamped CSV in `metrics/`. Both directories are gitignored.
 
 Large instances (`N >= 1000`) automatically solve the per-driver MILPs and the five resolve strategies across processes. Pass `parallel=False` to `solve_per_driver_scheduling` to force sequential execution
-
-## Figures
-
-Each script in `figures/` writes its PDF next to itself:
-
-```bash
-.venv/bin/python figures/results_plots.py metrics/<sweep>.csv
-```
-
-`results_plots.py` reads a sweep metrics CSV and produces the four result figures
 
 ## Layout
 
@@ -94,4 +83,4 @@ A `.graph` file holds one or more blocks:
 ...
 ```
 
-Nodes `0..N_c-1` are customers and the rest are drivers; each edge is one customer's preference for one driver. The weight column is parsed but ignored every preference edge counts as one, and the capacities come from the super-source and super-sink edges instead. Non-bipartite graphs are dropped on load.
+Nodes `0..N_c-1` are customers and the rest are drivers; each edge is one customer's preference for one driver. The weight column is parsed but ignored every preference edge counts as one, and the capacities come from the source and sink edges instead. Non-bipartite graphs are dropped on load, if there are any.
