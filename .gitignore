@@ -7,3 +7,5 @@ graphs/
 metrics/
 **/__pycache__/
 **/.DS_Store
+*.pdf
+!figures/*.pdf
