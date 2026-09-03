@@ -3,6 +3,8 @@
 
 In this section we go through the experiments performed to our pipeline. We describe the parameter values of each subproblem of our pipeline and the data used to test the pipeline. After this we go through the results from the performed experiments and discuss them briefly.
 
+The implementation of the pipeline and code used to generate each tested scenario are public and can be found in the following \href{https://github.com/aapolaakkio/thesis}{GitHub repository}.
+
 \subsection{Data}
 
 The data used to test the pipeline is synthetic meaning it is randomly generated. We sample a per-graph scenario with a fixed graph id as the seed for the random number generator to ensure reproducibility. Each driver $k$ is drawn a shift start time $S_k\sim U(0, 60)$ and shift end time $H_k\sim U(240, 600)$ which together form the driver's shift window $[S_k, H_k]$, where both ends are drawn from a uniform distribution. Each customer $i$ is drawn a wanted pickup time $U_i\sim U(0, 600)$ and a ride duration $R_i\sim U(5, 30)$. A delay cap $E_{\max}=15$ bounds how much after a pickup may happen relative to the wanted pickup time of the customer. Minimum break length $B_{\min}=10$ and maximum break length $B_{\max}=60$ is used to ensure some time between rides, simulating needing to move to a different location for the next pickup. The customer pickup delays and driver idle time are given multipliers $D=1$ and $I=1$. A penalty $P=300$ is charged for every customer that ends up unassigned.
