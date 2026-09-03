@@ -3,8 +3,6 @@
 
 In this section, we describe the methodology we use to solve the ride-sharing problem. First, we state the problem and then briefly introduce the idea of the pipeline, followed by a thorough discussion of each step in more detail.
 
-The source code for the pipeline can be found in the following \href{https://github.com/aapolaakkio/thesis}{GitHub repository}.
-
 \subsection{Problem formulation}
 
 We have a set $\mathcal{N}$ of customers and a set $\mathcal{K}$ of drivers. Each customer $i$ has a set $\mathcal{P}_i\subset\mathcal{K}$ of driver preferences. A customer $i$ can be assigned to a driver $k$ only if the driver is in the preference set of customer $i$. This relationship between customer and drivers can be modeled using a graph.
@@ -134,12 +132,14 @@ t \cdot \Delta t - U_i  &\leq E_{\max}. \label{eq:feas-delay}
 Constraint~\eqref{eq:feas-start} schedules the customer's pickup after both their wanted pickup time and the driver's shift start, \eqref{eq:feas-end} ensures the ride ends before the end of the driver's shift and \eqref{eq:feas-delay} caps the pickup delay at $E_{\max}$. Let $T_i$ denote the set of feasible start slots for customer $i$ on driver $k$ and let $e_{i,t} = t \cdot \Delta t + R_i$ be the end of ride $(i,t)$. Let $N_{i,t} = \{(j, t') : j \in A_k \setminus \{i\},\ t' \in T_j, e_{i,t} < t' \cdot \Delta t \leq e_{i,t} + B_{\max}\}$ be the rides that could follow $(i,t)$, that is, those starting within $B_{\max}$ minutes of its end. Let $r_i = \lceil R_i / \Delta t \rceil$ be the number of slots a ride covers. To enforce a minimum break of $B_{\min}$ minutes between consecutive rides, each ride's time footprint is inflated from $r_i$ to $r_i + b$, where $b = \lceil B_{\min} / \Delta t \rceil$. The MILP is
 
 \begin{align}
-\min \quad &
-D\sum_{i \in A_k} \sum_{t \in T_i} (t \cdot \Delta t - U_i)\, x_{i,t} + P \sum_{i \in A_k} \Bigl(1 - \sum_{t \in T_i} x_{i,t}\Bigr) + I\Bigl((H_k - S_k) - \sum_{i \in A_k} \sum_{t \in T_i} R_i\, x_{i,t}\Bigr) \label{eq:obj} \\
-\text{s.t.} \quad & \sum_{t \in T_i} x_{i,t} \leq 1, \quad \forall i \in A_k, \label{eq:assign} \\
-& \sum_{\substack{i \in A_k,\ t \in T_i \\ t \leq \tau < t + r_i + b}} x_{i,t} \leq 1, \quad \forall \text{ slot } \tau, \label{eq:overlap} \\
-& x_{i,t} \leq \sum_{(j,t') \in N_{i,t}} x_{j,t'}, \quad \forall (i,t) : e_{i,t} + B_{\max} < H_k, \label{eq:succ} \\
-& x_{i,t} \in \{0, 1\}, \quad \forall i \in A_k,\ t \in T_i. \nonumber
+\min \quad & D \sum_{i \in A_k} \sum_{t \in T_i} (t \cdot \Delta t - U_i) x_{i,t} \\
+    +\quad & P \sum_{i \in A_k} ( 1 - \sum_{t \in T_i} x_{i,t} ) \\
+    +\quad & I ( (H_k - S_k) - \sum_{i \in A_k} \sum_{t \in T_i} R_i x_{i,t} ) \label{eq:obj} \\
+\text{s.t.} \quad 
+\sum_{t \in T_i} x_{i,t} &\leq 1, && \forall i \in A_k, \label{eq:assign} \\
+\sum_{\substack{i \in A_k, \, t \in T_i \\ t \leq \tau < t + r_i + b}} x_{i,t} &\leq 1, && \forall \text{ slot } \tau, \label{eq:overlap} \\
+x_{i,t} &\leq \sum_{(j,t') \in N_{i,t}} x_{j,t'}, && \forall (i,t) \text{ s.t. } e_{i,t} + B_{\max} < H_k, \label{eq:succ} \\
+& x_{i,t} \in \{0, 1\}, && \forall i \in A_k, \, t \in T_i. \label{eq:integrality}
 \end{align}
 
 The objective~\eqref{eq:obj} has three terms. The first minimizes total pickup delay, weighted by $D$. The second penalizes each unserved customer with a penalty $P$. The third, weighted by $I$, penalizes the driver's idle time over the shift. Constraint~\eqref{eq:assign} serves each customer at most once and \eqref{eq:overlap} forbids overlapping rides on the same driver by allowing at most one active ride in any slot $\tau$. Constraint~\eqref{eq:succ} bounds the breaks between rides to a maximum of $B_{\max}$ by requiring each ride to have a successor during the subsequent $B_{\max}$ minutes if there are more than $B_{\max}$ minutes of the driver's shift left after the drop-off of that ride. From the solution, we read, for each assigned customer $i$, their chosen start slot and realized pickup delay $\max(0,\, t \cdot \Delta t - U_i)$.
