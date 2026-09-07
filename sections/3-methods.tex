@@ -60,10 +60,10 @@ A_k = \bigl\{\, i \in \mathcal{N} : \{i, k\} \in M \,\bigr\}.
 \]
 \end{problem}
 
-We solve Problem~\ref{prob:matching} by utilizing maximum flow computation with the Ford-Fulkerson algorithm~\cite{ford1956maximal}. Ford-Fulkerson algorithm is used for computing the maximum flow through a directed graph. Ford-Fulkerson constructs a copy of the original graph, a so called residual graph, which it uses to calculate the maximum flow by repeatedly looking for augmenting paths through the graph. An augmenting path is a path through the graph that has capacity left. We use the a variant of the Ford-Fulkerson algorithm called Edmonds-Karp algorithm~\cite{edmonds1972theoretical}, which computes the augmenting paths using breadth-first search. Algorithm~\ref{alg:ff} gives the pseudocode of the algorithm. We record the wall-clock time of the matching process so that the Ford-Fulkerson runtime can be reported alongside the solution.
+We solve Problem~\ref{prob:matching} by utilizing maximum flow computation with the Ford–Fulkerson algorithm~\cite{ford1956maximal}. Ford–Fulkerson algorithm is used for computing the maximum flow through a directed graph. Ford–Fulkerson constructs a copy of the original graph, a so called residual graph, which it uses to calculate the maximum flow by repeatedly looking for augmenting paths through the graph. An augmenting path is a path through the graph that has capacity left. We use the a variant of the Ford–Fulkerson algorithm called Edmonds–Karp algorithm~\cite{edmonds1972theoretical}, which computes the augmenting paths using breadth-first search. Algorithm~\ref{alg:ff} gives the pseudocode of the algorithm. We record the wall-clock time of the matching process so that the Ford–Fulkerson runtime can be reported alongside the solution.
 
 \begin{algorithm}[H]
-\caption{Ford-Fulkerson with breadth-first search (Edmonds-Karp)}
+\caption{Ford–Fulkerson with breadth-first search (Edmonds–Karp)}
 \label{alg:ff}
 \begin{algorithmic}[1]
 \Require directed graph $G = (V, E)$ with capacities $w$, source $s$, sink $t$
@@ -88,7 +88,7 @@ We solve Problem~\ref{prob:matching} by utilizing maximum flow computation with 
 \end{algorithmic}
 \end{algorithm}
 
-To compute the maximum flow, the Ford-Fulkerson algorithm needs a single source, a vertex where all of the flow is created, and a single sink, a vertex where all of the flow is consumed. These vertices are added to the graph so that the source is connected to every customer vertex and the sink to every driver vertex. The weight of the outgoing edges of a source set how many drivers a customer may choose from and the weights of the incoming edges of a sink set the capacity of a driver. Figure~\ref{fig:bipartite} shows the resulting
+To compute the maximum flow, the Ford–Fulkerson algorithm needs a single source, a vertex where all of the flow is created, and a single sink, a vertex where all of the flow is consumed. These vertices are added to the graph so that the source is connected to every customer vertex and the sink to every driver vertex. The weight of the outgoing edges of a source set how many drivers a customer may choose from and the weights of the incoming edges of a sink set the capacity of a driver. Figure~\ref{fig:bipartite} shows the resulting
 bipartite structure with the added source and sink.
 
 \begin{figure}[H]
