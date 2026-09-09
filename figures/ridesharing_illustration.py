@@ -134,7 +134,10 @@ def main() -> None:
     fig.tight_layout()
     out = FIG_DIR / "ridesharing_illustration.pdf"
     fig.savefig(out, bbox_inches="tight", facecolor="white")
-    print(f"wrote {out}")
+    png = FIG_DIR / "png" / f"{out.stem}.png"
+    png.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(png, dpi=300, bbox_inches="tight", facecolor="white")
+    print(f"wrote {out} and {png}")
 
 
 if __name__ == "__main__":
