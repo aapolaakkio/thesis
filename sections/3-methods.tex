@@ -25,7 +25,7 @@ The objective is to calculate optimal schedules for each driver so that the numb
 A \emph{matching} in a graph is a set of edges of which no two share a vertex. We use a capacitated generalization in which each vertex $v$ may be connected by at most $c(v)$ chosen edges, where $c(v)$ is a per-vertex capacity.
 \end{definition}
 
-The idea is to first find, for each driver $k$, an assignable set $A_k \subseteq \mathcal{N}$ of customers by computing a matching on the preference graph. Then, using the assignable sets, we solve an initial schedule for each driver with mixed-integer linear programming (MILP). Because the drivers are scheduled independently of each other, a single customer can end up assigned to several drivers, causing a conflict. To solve the conflicts, we perform a conflict resolution step and iterate the scheduling to improve the total objective value. As a result we have three separate problems that we need to separately define and solve.
+The idea is to first find, for each driver $k$, an assignable set $A_k \subseteq \mathcal{N}$ of customers by computing a matching on the preference graph. Then, using the assignable sets, we solve an initial schedule for each driver with integer linear programming (ILP). Because the drivers are scheduled independently of each other, a single customer can end up assigned to several drivers, causing a conflict. To solve the conflicts, we perform a conflict resolution step and iterate the scheduling to improve the total objective value. As a result we have three separate problems that we need to separately define and solve.
 
 These three subproblems, matching, scheduling and conflict resolution, together form a pipeline that solves the whole scheduling problem. It takes the bipartite graph of preferences as input and produces the optimized schedules together with a set of metrics as output. Figure~\ref{fig:pipeline} shows the full outline of the pipeline.
 
@@ -100,9 +100,9 @@ bipartite structure with the added source and sink.
 
 The customer-driver matching is read from the residual graph. For every edge $(c, d)$ between a customer $c$ and a driver $d$ in the original graph, the flow used along that edge equals the original capacity minus the remaining residual capacity. If this used flow is strictly positive, we record $(c, d)$ as a matched pair. From these matched pairs, we construct the sets of assignable customers. We record the average number of customers per driver, drivers per customer and also the coverage percent, that is the share of customers that were matched to at least one driver.
 
-\subsection{Per-driver scheduling MILP}
+\subsection{Per-driver scheduling ILP}
 
-After the matching step, we solve the schedules of each driver separately using mixed-integer linear programming. The matching subproblem provides, for each driver $k$, the set $A_k$ of customers that $k$ is allowed to serve.
+After the matching step, we solve the schedules of each driver separately using integer linear programming. The matching subproblem provides, for each driver $k$, the set $A_k$ of customers that $k$ is allowed to serve.
 
 \begin{problem}[Scheduling customers for a driver]
 \label{prob:scheduling}
@@ -121,7 +121,7 @@ D \sum_{i \in C_k} (t_i - U_i)
 of the total pickup delay, the number of unserved customers and the idle time of the driver, with given weights $D$, $P$ and $I$.
 \end{problem}
 
-We solve Problem~\ref{prob:scheduling} with an independent time-indexed MILP with Gurobi (\cite{gurobi}) for each driver $k$. Time is discretized into slots of width $\Delta t$, one minute by default. For every customer $i \in A_k$ and every feasible start slot $t$ we introduce a binary variable $x_{i,t} \in \{0, 1\}$ that equals one if and only if customer $i$'s ride starts at slot $t$ on driver $k$. A start slot $t$ is feasible if and only if
+We solve Problem~\ref{prob:scheduling} with an independent time-indexed ILP with Gurobi (\cite{gurobi}) for each driver $k$. Time is discretized into slots of width $\Delta t$, one minute by default. For every customer $i \in A_k$ and every feasible start slot $t$ we introduce a binary variable $x_{i,t} \in \{0, 1\}$ that equals one if and only if customer $i$'s ride starts at slot $t$ on driver $k$. A start slot $t$ is feasible if and only if
 
 \begin{align}
 t \cdot \Delta t        &\geq \max(U_i, S_k), \label{eq:feas-start} \\
@@ -129,7 +129,7 @@ t \cdot \Delta t + R_i  &\leq H_k, \label{eq:feas-end} \\
 t \cdot \Delta t - U_i  &\leq E_{\max}. \label{eq:feas-delay}
 \end{align}
 
-Constraint~\eqref{eq:feas-start} schedules the customer's pickup after both their wanted pickup time and the driver's shift start, \eqref{eq:feas-end} ensures the ride ends before the end of the driver's shift and \eqref{eq:feas-delay} caps the pickup delay at $E_{\max}$. Let $T_i$ denote the set of feasible start slots for customer $i$ on driver $k$ and let $e_{i,t} = t \cdot \Delta t + R_i$ be the end of ride $(i,t)$. Let $N_{i,t} = \{(j, t') : j \in A_k \setminus \{i\},\ t' \in T_j, e_{i,t} < t' \cdot \Delta t \leq e_{i,t} + B_{\max}\}$ be the rides that could follow $(i,t)$, that is, those starting within $B_{\max}$ minutes of its end. Let $r_i = \lceil R_i / \Delta t \rceil$ be the number of slots a ride covers. To enforce a minimum break of $B_{\min}$ minutes between consecutive rides, each ride's time footprint is inflated from $r_i$ to $r_i + b$, where $b = \lceil B_{\min} / \Delta t \rceil$. The MILP is
+Constraint~\eqref{eq:feas-start} schedules the customer's pickup after both their wanted pickup time and the driver's shift start, \eqref{eq:feas-end} ensures the ride ends before the end of the driver's shift and \eqref{eq:feas-delay} caps the pickup delay at $E_{\max}$. Let $T_i$ denote the set of feasible start slots for customer $i$ on driver $k$ and let $e_{i,t} = t \cdot \Delta t + R_i$ be the end of ride $(i,t)$. Let $N_{i,t} = \{(j, t') : j \in A_k \setminus \{i\},\ t' \in T_j, e_{i,t} < t' \cdot \Delta t \leq e_{i,t} + B_{\max}\}$ be the rides that could follow $(i,t)$, that is, those starting within $B_{\max}$ minutes of its end. Let $r_i = \lceil R_i / \Delta t \rceil$ be the number of slots a ride covers. To enforce a minimum break of $B_{\min}$ minutes between consecutive rides, each ride's time footprint is inflated from $r_i$ to $r_i + b$, where $b = \lceil B_{\min} / \Delta t \rceil$. The ILP is
 
 \begin{align}
 \min \quad & D \sum_{i \in A_k} \sum_{t \in T_i} (t \cdot \Delta t - U_i) x_{i,t} \\
@@ -161,7 +161,7 @@ the total objective of Problem~\ref{prob:scheduling} summed over all drivers, wi
 
 We solve Problem~\ref{prob:conflict} using a greedy resolution loop. Each customer assigned to at least two drivers is assigned to the driver that achieves the lowest pickup delay. The customer is then removed from the assignable sets and schedules of all other drivers. This already resolves all of the conflicts but is only the first part of the solution to the subproblem.
 
-It is possible that after removing the contested customers from the assignable sets of the drivers, previously unserved customers could now be assigned. Due to this, we run an iterated resolve of the per-driver scheduling problems. In each round, every driver's MILP is rerun on the union of its current assignments and the customers that are still unserved but lie in the driver's assignable set. Any customer a resolved MILP newly assigns is removed from the unserved pool immediately. We stop when a round changes no driver's assignments, when the unserved customer pool fails to shrink between rounds or after a configurable round limit, whichever comes first.
+It is possible that after removing the contested customers from the assignable sets of the drivers, previously unserved customers could now be assigned. Due to this, we run an iterated resolve of the per-driver scheduling problems. In each round, every driver's ILP is rerun on the union of its current assignments and the customers that are still unserved but lie in the driver's assignable set. Any customer a resolved ILP newly assigns is removed from the unserved pool immediately. We stop when a round changes no driver's assignments, when the unserved customer pool fails to shrink between rounds or after a configurable round limit, whichever comes first.
 
 Since the order in which the drivers are processed affects the outcome of the greedy resolve loop, we run the conflict resolution with five different driver ordering and keep the best result. The five comparators are ascending index, ascending number of customers, descending number of customers, ascending number of conflicts and descending number of conflicts. Algorithm~\ref{alg:conflict} summarizes the full procedure.
 
@@ -169,7 +169,7 @@ Since the order in which the drivers are processed affects the outcome of the gr
 \caption{Conflict resolution between drivers}
 \label{alg:conflict}
 \begin{algorithmic}[1]
-\Require per-driver schedules from the first MILP pass, assignable sets $A_k$
+\Require per-driver schedules from the first ILP pass, assignable sets $A_k$
 \Ensure an assignment of each customer to at most one driver
 \ForAll{customers $i$ chosen by at least one driver} \Comment{greedy resolution}
   \State assign $i$ to the choosing driver with the lowest pickup delay for $i$, breaking ties by the lowest driver index
@@ -180,7 +180,7 @@ Since the order in which the drivers are processed affects the outcome of the gr
     \ForAll{drivers $k$ in the order $\sigma$}
       \State $C_k \gets \{\text{customers currently assigned to } k\} \cup (Q \cap A_k)$
       \If{$C_k$ differs from the input of $k$'s previous solve}
-        \State re-solve driver $k$'s MILP over $C_k$
+        \State re-solve driver $k$'s ILP over $C_k$
         \State assign each customer served by the new schedule to $k$ and remove them from $Q$
         \State return each customer no longer served by $k$ to $Q$
       \EndIf

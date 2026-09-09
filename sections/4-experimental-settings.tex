@@ -94,7 +94,7 @@ $N$ & $K$ & assig. & unassig. & drv.\ used & max load & avg load & delay & idle 
 
 In every scenario the number of served customers is limited by the driver capacity, not by the matching done in the previous subproblem. A driver's shift is on average about 390 minutes long and a served ride occupies on average $17.5 + B_{\min} = 27.5$ minutes, so a driver can serve roughly 14--26 customers depending on the ride lengths. The observed maximum loads of 26--30 sit at the top of this range. Consequently, the number of assigned customers grows almost linearly in the number of drivers, by roughly 13 customers per added driver, while thousands of customers remain unassigned. Increasing the number of customers at a fixed driver count increases the assigned count only slightly. A larger number of customers gives each driver more short rides to choose from, which allows a denser packing of their shifts. Because every unassigned customer costs the penalty $P = 300$, the unassigned term dominates the objective; for example for $N = 6000$, $K = 100$ the penalty term accounts for about 98\,\% of the final objective value.
 
-The scheduling runtime grows roughly linearly in the number of customers and shows no clear trend in the number of drivers (Figure~\ref{fig:sched-runtime}). This is expected, as the number of customers increases the size of each per-driver MILP, whereas an added driver only adds one more independent MILP of a similar size. All first-pass runtimes stay between 5 and 11 seconds, so the 30-second Gurobi time limit is never the binding factor.
+The scheduling runtime grows roughly linearly in the number of customers and shows no clear trend in the number of drivers (Figure~\ref{fig:sched-runtime}). This is expected, as the number of customers increases the size of each per-driver ILP, whereas an added driver only adds one more independent ILP of a similar size. All first-pass runtimes stay between 5 and 11 seconds, so the 30-second Gurobi time limit is never the binding factor.
 
 \begin{figure}[H]
   \centering
@@ -143,7 +143,7 @@ $N$ & $K$ & obj.\ initial & obj.\ final & improv.\ (\%) & strategy & $t_{\text{r
 
 For all but the reference scenario, the iterated resolve improves the objective by 9--17\,\%. The improvement grows with the number of drivers at every customer count, for example from 12.0\,\% at $K = 100$ to 17.1\,\% at $K = 150$ for $N = 6000$. This is expected as the resolve improves the objective mainly by assigning previously unserved customers to drivers with spare capacity, each of which saves the penalty $P$, and a larger driver fleet has more spare capacity after the greedy pass. At a fixed number of drivers, the relative improvement decreases as the customer count grows, since the absolute gain stays similar while the objective itself grows with the number of unserved customers.
 
-The resolve runtime grows with the number of customers and decreases with the number of drivers (Figure~\ref{fig:resolve-runtime}), and it is roughly 15 times the first-pass runtime, as each of the five driver orderings reruns per-driver MILPs over several rounds. The runtime stays below 200 seconds in all scenarios.
+The resolve runtime grows with the number of customers and decreases with the number of drivers (Figure~\ref{fig:resolve-runtime}), and it is roughly 15 times the first-pass runtime, as each of the five driver orderings reruns per-driver ILPs over several rounds. The runtime stays below 200 seconds in all scenarios.
 
 \begin{figure}[H]
   \centering
