@@ -182,8 +182,11 @@ def plot_objective_by_phase(rows: list[dict], out: Path) -> None:
 def _save(fig, out: Path) -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out.with_suffix(".pdf"), bbox_inches="tight", facecolor="white")
+    png = out.parent / "png" / (out.name + ".png")
+    png.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(png, dpi=300, bbox_inches="tight", facecolor="white")
     plt.close(fig)
-    print(f"wrote {out.with_suffix('.pdf')}")
+    print(f"wrote {out.with_suffix('.pdf')} and {png}")
 
 
 def main() -> None:
