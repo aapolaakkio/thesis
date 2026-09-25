@@ -1,23 +1,21 @@
 \section{Experimental Settings}
 \label{sec:experimental-settings}
 
-In this section we go through the experiments performed to our pipeline. We describe the parameter values of each subproblem of our pipeline and the data used to test the pipeline. After this we go through the results from the performed experiments and discuss them briefly.
+In this section, we go through the experiments performed on our pipeline. We describe the parameter values and data used in the testing of each subproblem. Then, we present the results and briefly discuss them.
 
-The implementation of the pipeline and code used to generate each tested scenario are public and can be found in the following \href{https://github.com/aapolaakkio/thesis}{GitHub repository}.
+The implementation and the code used to generate each tested scenario are public and available in the following \href{https://github.com/aapolaakkio/thesis}{GitHub repository}.
 
 \subsection{Data}
 
-The data used to test the pipeline is synthetic meaning it is randomly generated. We sample a per-graph scenario with a fixed graph id as the seed for the random number generator to ensure reproducibility. Each driver $k$ is drawn a shift start time $S_k\sim U(0, 60)$ and shift end time $H_k\sim U(240, 600)$ which together form the driver's shift window $[S_k, H_k]$, where both ends are drawn from a uniform distribution. Each customer $i$ is drawn a wanted pickup time $U_i\sim U(0, 600)$ and a ride duration $R_i\sim U(5, 30)$. A delay cap $E_{\max}=15$ bounds how much after a pickup may happen relative to the wanted pickup time of the customer. Minimum break length $B_{\min}=10$ and maximum break length $B_{\max}=60$ is used to ensure some time between rides, simulating needing to move to a different location for the next pickup. The customer pickup delays and driver idle time are given multipliers $D=1$ and $I=1$. A penalty $P=300$ is charged for every customer that ends up unassigned.
+The data used to test the pipeline is synthetic, meaning it is randomly generated. We sample a per-graph scenario using a fixed graph id as the random-number-generator seed to ensure reproducibility. Each driver $k$ is assigned a shift start time $S_k\sim U(0, 60)$ and shift end time $H_k\sim U(240, 600)$, which together form the driver's shift window $[S_k, H_k]$, with both ends drawn from a uniform distribution. Each customer $i$ is drawn a wanted pickup time $U_i\sim U(0, 600)$ and a ride duration $R_i\sim U(5, 30)$. A delay cap $E_{\max}=15$ bounds how late a pickup can occur relative to the customer's wanted pickup time. Minimum break length $B_{\min}=10$ and maximum break length $B_{\max}=60$ are used to ensure some time between rides, simulating needing to move to a different location for the next pickup. We set the customer pickup delay and driver idle-time multipliers to $D=1$ and $I=1$. We charge a penalty $P=300$ for every customer that ends up unassigned.
 
-We configure the bipartite graphs to have 3-6 edges for each customer, meaning 3-6 preferences per customer. In addition, we allow at most 5 matched drivers for each customer. For drivers, the number of matched customers is not capped, allowing all customers to be assigned to a single driver, theoretically.
+We configure the bipartite graphs to have 3-6 edges for each customer, meaning 3-6 preferences per customer. We also allow at most 5 matched drivers for each customer. For drivers, we do not cap the number of matched customers, so theoretically all customers can be assigned to a single driver. In addition, we set the time granularity $\Delta t=1$, meaning scheduling is done at one-minute precision; we limit the resolution to at most 5 rounds, and each Gurobi run to at most 30 seconds.
 
-In addition we set the time granularity $\Delta t=1$, meaning the scheduling is done at one minute precision, limit the resolve rounds to a maximum of 5 rounds and limit each Gurobi run to at most 30 seconds.
-
-We run 18 scenarios and one reference scenario. The number of customers was set as $N\in\{6000,7000,8000\}$ and number of drivers as $K\in\{100,110,120,130,140,150\}$. We run a scenario for every customer and driver count pair $N \times K$. Additionally, we run one additional reference with $N=1000$ and $K=200$ to test the sensitivity of the pipeline.
+We run 18 scenarios and one reference scenario. The number of customers was set as $N\in\{6000,7000,8000\}$ and number of drivers as $K\in\{100,110,120,130,140,150\}$. We run a scenario for every customer and driver count pair $N \times K$. We also run one additional reference with $N=1000$ and $K=200$ to test the pipeline's sensitivity.
 
 \subsection{Matching results}
 
-The first subproblem is finding the matching via maximum flow computation. From this subproblem, we record the maximum flow calculated by the Ford–Fulkerson algorithm, the average customers per driver and average drivers per customer and lastly the time it took to calculate the maximum flow and the matching. The results are presented in Table~\ref{tab:matching}.
+The first subproblem is finding the matching via maximum flow computation. For this subproblem, we record the maximum flow computed by the Ford–Fulkerson algorithm (max-flow), the time to compute the maximum flow and the matching ($t_{\text{FF}}$), the average customers per driver (cust./drv.) and average drivers per customer (drv./cust.). The results are presented in Table~\ref{tab:matching}.
 
 \begin{table}[H]
 \centering
@@ -50,15 +48,15 @@ $N$ & $K$ & max-flow & $t_{\text{FF}}$ (s) & cust./drv. & drv./cust. \\
 \end{tabular}
 \end{table}
 
-We can see that the value of the maximum flow steadily increases when both the number of customers and the number of drivers increases. Increments in the number of the customers cause a larger increase in the maximum flow than the increments in the number of the drivers. We also see that the time it took to solve the matching grows superlinearly with the number of the customers, from an average of 64 seconds at $N = 6000$ to 117 seconds at $N = 8000$, and slightly decreases with the number of the drivers.
+We observe that the maximum flow steadily increases as both the number of customers and the number of drivers increases. Increments in the number of customers cause a larger increase in the maximum flow than increments in the number of drivers. We also observe that the time to calculate the matching grows superlinearly with the number of customers, from an average of 64 seconds at $N = 6000$ to 117 seconds at $N = 8000$, and decreases slightly with the number of drivers.
 
-The averages, however, behave a little differently. The average customers per driver increases when the number of the customers is increased but decreases when the number of the drivers is increased. This is logical as the drivers can match to a customer as long as there is an edge between them, and since the drivers have no limit to the number of matched customers, only the number of edges generated between the vertices limits the average. 
+The averages, however, behave a little differently. The average customers per driver increases as the number of customers increases but decreases as the number of drivers increases. This is logical, as drivers can match to a customer as long as there is an edge between them. Since drivers have no limit to the number of matched customers, only the number of edges generated between vertices limits the average. 
 
-On the other hand, the drivers per customer is almost the same for all scenarios, averaging around $4.25$. This naturally happens due to the cap of maximum 5 drivers per customer and as there are always 3-6 edges per customer vertex, on average, customers are matched to $\frac{3+4+5+5}{4}=4.25$ drivers.
+On the other hand, drivers per customer is almost the same across scenarios, averaging around $4.25$. This naturally happens because of the cap of 5 drivers per customer, and since there are always 3-6 edges per customer vertex, customers are matched to an average of $\frac{3+4+5+5}{4}=4.25$ drivers.
 
 \subsection{Scheduling results}
 
-The second subproblem is the per-driver scheduling. From this subproblem we record the structure of the delivered schedule i.e. the number of assigned and unassigned customers, the number of drivers that serve at least one customer, the maximum and average number of customers per driver, the total pickup delay and idle time in minutes, and the runtime $t_{\text{sched}}$ of the first scheduling pass in seconds. The results are presented in Table~\ref{tab:scheduling} and the runtime is plotted in Figure~\ref{fig:sched-runtime}.
+The second subproblem is the per-driver scheduling. From this subproblem, we record the structure of the delivered schedule, i.e. the number of assigned (assig.) and unassigned customers (unassig.), the number of drivers that serve at least one customer (drv.\ used), the maximum (max load) and average number of customers per driver (avg load), the total pickup delay (delay) and idle time in minutes (idle), and the runtime of the first scheduling pass in seconds  ($t_{\text{sched}}$). Table~\ref{tab:scheduling} presents the results, and Figure~\ref{fig:sched-runtime} plots the runtime.
 
 \begin{table}[H]
 \centering
@@ -92,27 +90,27 @@ $N$ & $K$ & assig. & unassig. & drv.\ used & max load & avg load & delay & idle 
 \end{tabular}
 \end{table}
 
-In every scenario the number of served customers is limited by the driver capacity, not by the matching done in the previous subproblem. A driver's shift is on average about 390 minutes long and a served ride occupies on average $17.5 + B_{\min} = 27.5$ minutes, so a driver can serve roughly 14--26 customers depending on the ride lengths. The observed maximum loads of 26--30 sit at the top of this range. Consequently, the number of assigned customers grows almost linearly in the number of drivers, by roughly 13 customers per added driver, while thousands of customers remain unassigned. Increasing the number of customers at a fixed driver count increases the assigned count only slightly. A larger number of customers gives each driver more short rides to choose from, which allows a denser packing of their shifts. Because every unassigned customer costs the penalty $P = 300$, the unassigned term dominates the objective; for example for $N = 6000$, $K = 100$ the penalty term accounts for about 98\,\% of the final objective value.
+In every scenario, the number of served customers is limited by the driver capacity, not by the matching done in the previous subproblem. A driver's shift is on average about 390 minutes long, and a served ride takes on average $17.5 + B_{\min} = 27.5$ minutes, so a driver can serve roughly 14--26 customers depending on ride lengths. The observed maximum loads of 26--30 sit at the top of this range. Consequently, the number of assigned customers grows almost linearly with the number of drivers, by roughly 13 customers per added driver, while thousands of customers remain unassigned. Increasing the number of customers at a fixed driver count increases the assigned count only slightly. More customers give each driver more short rides to choose from, allowing denser packing of their shifts. Because every unassigned customer costs a penalty of $P = 300$, the unassigned term dominates the objective; for example, for $N = 6000$ and $K = 100$, the penalty term accounts for about 98\,\% of the final objective value.
 
-The scheduling runtime grows superlinearly in the number of customers, from an average of 5.7 seconds at $N = 6000$ to 10.4 seconds at $N = 8000$, and shows no clear trend in the number of drivers (Figure~\ref{fig:sched-runtime}). This is expected, as the number of customers increases the size of each per-driver ILP, whereas an added driver only adds one more independent ILP of a similar size. All first-pass runtimes of the main scenarios stay between 4.8 and 11.1 seconds, and the reference scenario takes only 1.3 seconds, so the 30-second Gurobi time limit never constrains the solution.
+The scheduling runtime grows superlinearly in the number of customers, from an average of 5.7 seconds at $N = 6000$ to 10.4 seconds at $N = 8000$, and shows no clear trend in the number of drivers (Figure~\ref{fig:sched-runtime}). This is expected, as more customers increase the size of each per-driver ILP, whereas adding a driver adds only one more independent ILP, optimized in parallel with the rest. All first-pass runtimes of the main scenarios stay between 4.8 and 11.1 seconds, and the reference scenario takes only 1.3 seconds, so the 30-second Gurobi time limit never constrains the solution.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figures/results_scheduling_runtime.pdf}
-  \caption{The runtime of the initial scheduling with respect to the number of customer and drivers}
+  \caption{The runtime of the initial scheduling with respect to the number of customers and drivers}
   \label{fig:sched-runtime}
 \end{figure}
 
-The reference scenario with $N = 1000$ and $K = 200$ behaves differently. It is heavily over-provisioned as only 166 of the 200 drivers serve any customers and the average load is 4.1. Still, 326 customers remain unassigned. These customers cannot be served at all since a customer whose wanted pickup time falls late in the day fits inside the shift of only a small fraction of the drivers, and with on average 4.3 matched drivers per customer it is likely that none of them has a feasible start slot within the delay cap $E_{\max}$.
+The reference scenario with $N = 1000$ and $K = 200$ behaves differently. It is heavily over-provisioned, as only 166 of the 200 drivers serve any customers, and the average load is 4.1. Still, 326 customers remain unassigned. These customers likely cannot be served at all since a customer whose wanted pickup time falls late in the day fits inside the shift of only a small fraction of the drivers, and with on average 4.3 matched drivers per customer it is likely that none of them has a feasible start slot within the delay cap $E_{\max}$. Thus, the unassigned customers might not be a consequence of there being too few drivers. Instead this illustrates the possible effect of too strict preferences. With only one or two driver preferences, the risk of all preferred drivers not having a suitable ride slot becomes high.
 
 \subsection{Conflict resolution results}
 
-The last subproblem is the conflict resolution. From this subproblem we record the objective value after the greedy assignment (initial) and after the iterated resolve (final), the relative improvement between the two, the driver ordering that produced the best final objective, and the resolve runtime $t_{\text{res}}$ in seconds. The results are presented in Table~\ref{tab:resolve}; Figure~\ref{fig:resolve-runtime} plots the runtime, Figure~\ref{fig:resolve-boxplot} compares the five driver orderings and Figure~\ref{fig:objective-by-phase} shows the objective before and after the resolve for every scenario.
+The last subproblem is the conflict resolution. From this subproblem, we record the objective value after the greedy assignment (initial) and after the iterated conflict resolution (final), the relative improvement between the two, the driver ordering that produced the best final objective, and the conflict resolution runtime $t_{\text{res}}$ in seconds. Table~\ref{tab:resolution} presents the results; Figure~\ref{fig:resolution-runtime} plots the runtime, Figure~\ref{fig:resolution-boxplot} compares the five driver orderings, and Figure~\ref{fig:objective-by-phase} shows the objective before and after the conflict resolution for every scenario.
 
 \begin{table}[H]
 \centering
 \caption{Conflict resolution results}
-\label{tab:resolve}
+\label{tab:resolution}
 \small
 \begin{tabular}{rrrrrlr}
 \toprule
@@ -141,32 +139,32 @@ $N$ & $K$ & obj.\ initial & obj.\ final & improv.\ (\%) & strategy & $t_{\text{r
 \end{tabular}
 \end{table}
 
-For all but the reference scenario, the iterated resolve improves the objective by 9--17\,\%. The improvement grows with the number of drivers at every customer count, for example from 12.0\,\% at $K = 100$ to 17.1\,\% at $K = 150$ for $N = 6000$. This is expected as the resolve improves the objective mainly by assigning previously unserved customers to drivers with spare capacity, each of which saves the penalty $P$, and a larger driver fleet has more spare capacity after the greedy pass. At a fixed number of drivers, the relative improvement decreases as the customer count grows, since the absolute gain stays similar while the objective itself grows with the number of unserved customers.
+For all but the reference scenario, the iterated conflict resolution improves the objective by 9--17\,\%. The improvement grows with the number of drivers at every customer count, for example from 12.0\,\% at $K = 100$ to 17.1\,\% at $K = 150$ for $N = 6000$. This is expected as the conflict resolution improves the objective mainly by assigning previously unserved customers to drivers with spare capacity, each of which saves the penalty $P$, and a larger driver fleet has more spare capacity after the greedy pass. At a fixed number of drivers, the relative improvement decreases as the customer count grows, since the absolute gain stays similar while the objective itself grows with the number of unserved customers.
 
-The resolve runtime grows superlinearly with the number of customers, from an average of 78 seconds at $N = 6000$ to 173 seconds at $N = 8000$, and decreases with the number of drivers (Figure~\ref{fig:resolve-runtime}), and it is roughly 15 times the first-pass runtime, as each of the five driver orderings reruns per-driver ILPs over several rounds. The runtime stays below 200 seconds in all scenarios.
+The resolution runtime grows superlinearly with the number of customers, from an average of 78 seconds at $N = 6000$ to 173 seconds at $N = 8000$, and decreases with the number of drivers (Figure~\ref{fig:resolution-runtime}), and it is roughly 15 times the first-pass runtime, as each of the five driver orderings reruns per-driver ILPs over several rounds. The runtime stays below 200 seconds in all scenarios.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{figures/results_resolve_runtime.pdf}
-  \caption{The runtime of the resolve with respect to the number of customer and drivers}
-  \label{fig:resolve-runtime}
+  \includegraphics[width=\textwidth]{figures/results_resolution_runtime.pdf}
+  \caption{The runtime of the conflict resolution with respect to the number of customers and drivers}
+  \label{fig:resolution-runtime}
 \end{figure}
 
-Figure~\ref{fig:resolve-boxplot} shows that the choice of the driver ordering matters little on average. The median excess over the per-scenario best ordering is below 0.11\,\% for every strategy, and no single ordering wins consistently, as can also be seen from the chosen-strategy column of Table~\ref{tab:resolve}. The ascending-conflicts ordering has the lowest median excess and the plain index ordering the largest spread.
+Figure~\ref{fig:resolution-boxplot} shows that driver ordering matters little on average. The median excess over the per-scenario best ordering is below 0.11\,\% for every strategy, and no single ordering outperforms consistently, as shown in the chosen-strategy column of Table~\ref{tab:resolution}. The ascending-conflicts ordering has the lowest median excess, while the plain index ordering has the largest spread.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{figures/results_resolve_boxplot.pdf}
+  \includegraphics[width=\textwidth]{figures/results_resolution_boxplot.pdf}
   \caption{Excess of each driver-ordering strategy's objective over the per-scenario best. Outliers are omitted for readability.}
-  \label{fig:resolve-boxplot}
+  \label{fig:resolution-boxplot}
 \end{figure}
 
-In the reference scenario the resolve worsens the objective by 10.7\,\%. Each re-solve is optimal for the driver being re-solved but not necessarily
-for the whole driver fleet. A re-solved driver may drop a previously assigned customer back into the unserved pool, and in the over-provisioned reference scenario such swaps outweigh the few customers there are left to absorb. The final result is the best of the five orderings only, the initial greedy assignment itself is not kept as a candidate, so the pipeline does not fall back to it even when every ordering ends worse. Adding the greedy assignment as a sixth candidate would remove this failure mode.
+In the reference scenario, the resolution worsens the objective by 10.7\,\%. Each resolution is optimal for the driver itself but not necessarily
+for the whole driver set. A driver assigned in the conflict resolution may drop a previously assigned customer back into the unserved pool, and in the over-provisioned reference scenario such swaps outweigh the few customers left to absorb them. The final result is the best of the five orderings; the initial greedy assignment is not kept as a candidate, so the pipeline does not fall back to it even when every ordering ends worse. Adding the greedy assignment as a sixth candidate would remove this failure mode.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=\textwidth]{figures/results_objective_by_phase.pdf}
-  \caption{Improvement of scheduling objective between initial scheduling round and after resolving}
+  \caption{Improvement of scheduling objective between the initial scheduling round and after resolving}
   \label{fig:objective-by-phase}
 \end{figure}

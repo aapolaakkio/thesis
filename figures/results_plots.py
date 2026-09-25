@@ -105,7 +105,7 @@ def plot_runtime_vs_nk(rows: list[dict], out: Path, col: str, title: str) -> Non
     _save(fig, out)
 
 
-def plot_resolve_boxplot(rows: list[dict], out: Path) -> None:
+def plot_resolution_boxplot(rows: list[dict], out: Path) -> None:
     """Boxplot of each strategy's objective, normalised to the per-instance best."""
     excess = {s: [] for s in STRATEGIES}
     for r in rows:
@@ -196,9 +196,9 @@ def main() -> None:
 
     plot_runtime_vs_nk(rows, FIG_DIR / "results_scheduling_runtime",
                        "scheduling_seconds", "Scheduling")
-    plot_runtime_vs_nk(rows, FIG_DIR / "results_resolve_runtime",
+    plot_runtime_vs_nk(rows, FIG_DIR / "results_resolution_runtime",
                        "conflict_seconds", "Conflict-resolution")
-    plot_resolve_boxplot(rows, FIG_DIR / "results_resolve_boxplot")
+    plot_resolution_boxplot(rows, FIG_DIR / "results_resolution_boxplot")
     plot_objective_by_phase(rows, FIG_DIR / "results_objective_by_phase")
 
 
