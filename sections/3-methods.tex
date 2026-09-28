@@ -167,7 +167,7 @@ After removing the contested customers from drivers' assignable sets, previously
 
 Because the order in which drivers are processed affects the outcome of the greedy conflict resolution loop, we run conflict resolution with five different driver orderings and keep the best result. The five comparators are ascending index, ascending number of customers, descending number of customers, ascending number of conflicts and descending number of conflicts. Also, since the loop is greedy, we only compute the different orderings in parallel and not all of the ILPs like in the scheduling subproblem. Algorithm~\ref{alg:conflict} summarises the full procedure.
 
-\begin{algorithm}[H]
+\begin{breakablealgorithm}
 \caption{Conflict resolution between drivers}
 \label{alg:conflict}
 \begin{algorithmic}[1]
@@ -197,4 +197,4 @@ Because the order in which drivers are processed affects the outcome of the gree
 \EndFor
 \State \Return the assignment of the ordering with the lowest objective value
 \end{algorithmic}
-\end{algorithm}
+\end{breakablealgorithm}

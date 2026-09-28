@@ -228,6 +228,28 @@
 \bibliographystyle{seplainnat}
 }}{}}
 
+\newcommand{\fname}{Algorithm}
+
+\newenvironment{breakablealgorithm}
+  {% \begin{breakablealgorithm}
+   \begin{center}
+     \refstepcounter{algorithm}% New algorithm
+     \hrule height.8pt depth0pt \kern2pt% \@fs@pre for \@fs@ruled
+     \renewcommand{\caption}[2][\relax]{% Make a new \caption
+       {\raggedright\textbf{\fname~\thealgorithm} ##2\par}%
+       \ifx\relax##1\relax % #1 is \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}%
+       \else % #1 is not \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##1}%
+       \fi
+       \kern2pt\hrule\kern2pt
+     }
+  }{% \end{breakablealgorithm}
+     \kern2pt\hrule\relax% \@fs@post for \@fs@ruled
+   \end{center}
+  }
+\makeatother
+
 \setcitestyle{authoryear,open={(},close={)}}
 % use the below citestyle instead of the previous line if you want to use number citations as is common in mathematics: 
 %\setcitestyle{numbers,open={[},close={]},comma}
@@ -544,7 +566,7 @@ Kimppakyytipalveluiden on päätettävä, mikä kuljettaja palvelee mitäkin asi
 \newpage
 \input{sections/5-conclusion}
 
-
+\newpage
 %% LÄHDELUETTELO
 %%  BibTeX-tiedoston kokoaminen onnistuu näppärästi esim. 
 %%  Firefoxin/Chromen Zotero-lisäosalla http://www.zotero.org/
