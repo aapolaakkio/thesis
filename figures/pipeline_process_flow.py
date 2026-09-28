@@ -29,20 +29,27 @@ MINI_LW = 1.8
 def stage_box(ax, cx, title, fill, edge):
     ax.add_patch(
         FancyBboxPatch(
-            (cx - BOX_W / 2, Y_MID - BOX_H / 2), BOX_W, BOX_H,
+            (cx - BOX_W / 2, Y_MID - BOX_H / 2),
+            BOX_W,
+            BOX_H,
             boxstyle="round,pad=0.1",
-            facecolor=fill, edgecolor=edge, linewidth=2.2,
+            facecolor=fill,
+            edgecolor=edge,
+            linewidth=2.2,
         )
     )
-    ax.text(cx, Y_MID, title, ha="center", va="center",
-            fontsize=20, fontweight="bold")
+    ax.text(cx, Y_MID, title, ha="center", va="center", fontsize=20, fontweight="bold")
 
 
 def arrow(ax, p0, p1, rad=0.0, color=GREY, lw=2.0, style="-|>", scale=20):
     ax.add_patch(
         FancyArrowPatch(
-            p0, p1, arrowstyle=style, mutation_scale=scale,
-            linewidth=lw, color=color,
+            p0,
+            p1,
+            arrowstyle=style,
+            mutation_scale=scale,
+            linewidth=lw,
+            color=color,
             connectionstyle=f"arc3,rad={rad}",
         )
     )
@@ -61,11 +68,9 @@ MINI_DX = 1.0
 def mini_dots(ax, cx, cy):
     lx, rx = cx - MINI_DX, cx + MINI_DX
     for off in L_OFF:
-        ax.plot(lx, cy + off, "o", ms=DOT_MS,
-                mfc=BLUE_FILL, mec=BLUE_EDGE, mew=2.0)
+        ax.plot(lx, cy + off, "o", ms=DOT_MS, mfc=BLUE_FILL, mec=BLUE_EDGE, mew=2.0)
     for off in R_OFF:
-        ax.plot(rx, cy + off, "o", ms=DOT_MS,
-                mfc=ORANGE_FILL, mec=ORANGE_EDGE, mew=2.0)
+        ax.plot(rx, cy + off, "o", ms=DOT_MS, mfc=ORANGE_FILL, mec=ORANGE_EDGE, mew=2.0)
 
 
 def mini_preference(ax, cx, cy, cut_edges=()):
@@ -75,11 +80,20 @@ def mini_preference(ax, cx, cy, cut_edges=()):
         i, j = e
         y0, y1 = cy + L_OFF[i], cy + R_OFF[j]
         if e in cut_edges:
-            ax.plot([lx, rx], [y0, y1], color=CUT_RED, lw=MINI_LW,
-                    linestyle=(0, (3, 2)))
+            ax.plot(
+                [lx, rx], [y0, y1], color=CUT_RED, lw=MINI_LW, linestyle=(0, (3, 2))
+            )
             mx, my = (lx + rx) / 2, (y0 + y1) / 2
-            ax.text(mx, my, r"$\times$", ha="center", va="center",
-                    fontsize=18, color=CUT_RED, fontweight="bold")
+            ax.text(
+                mx,
+                my,
+                r"$\times$",
+                ha="center",
+                va="center",
+                fontsize=18,
+                color=CUT_RED,
+                fontweight="bold",
+            )
         else:
             ax.plot([lx, rx], [y0, y1], color="#666666", lw=MINI_LW)
     mini_dots(ax, cx, cy)
@@ -90,8 +104,14 @@ def mini_flow(ax, cx, cy):
     lx, rx = cx - MINI_DX, cx + MINI_DX
     sx, tx = cx - 1.95, cx + 1.95
     for i, j in MINI_EDGES:
-        arrow(ax, (lx, cy + L_OFF[i]), (rx, cy + R_OFF[j]),
-              color="#666666", lw=1.4, scale=13)
+        arrow(
+            ax,
+            (lx, cy + L_OFF[i]),
+            (rx, cy + R_OFF[j]),
+            color="#666666",
+            lw=1.4,
+            scale=13,
+        )
     for off in L_OFF:
         arrow(ax, (sx, cy), (lx, cy + off), color="#666666", lw=1.4, scale=13)
     for off in R_OFF:
@@ -123,29 +143,47 @@ def mini_schedule(ax, cx, cy):
 
 
 def main() -> None:
-    fig, ax = plt.subplots(figsize=(16, 9))
-    ax.set_xlim(0, 18.4)
-    ax.set_ylim(0, 10.35)
+    fig, ax = plt.subplots(figsize=(16, 7.6))
+    ax.set_xlim(0.25, 17.95)
+    ax.set_ylim(0.95, 9.25)
     ax.set_aspect("equal")
     ax.set_axis_off()
 
-    ax.text(X_INPUT, Y_MID, "Preference\ngraph", ha="center", va="center",
-            fontsize=18, style="italic")
+    ax.text(
+        X_INPUT,
+        Y_MID,
+        "Preference\ngraph",
+        ha="center",
+        va="center",
+        fontsize=18,
+        style="italic",
+    )
     stage_box(ax, X_MATCH, "Matching", BLUE_FILL, BLUE_EDGE)
     stage_box(ax, X_SCHED, "Scheduling", GREEN_FILL, GREEN_EDGE)
     stage_box(ax, X_CONF, "Conflict\nresolution", ORANGE_FILL, ORANGE_EDGE)
-    ax.text(X_OUT, Y_MID, "Final\nschedule", ha="center", va="center",
-            fontsize=18, style="italic")
+    ax.text(
+        X_OUT,
+        Y_MID,
+        "Final\nschedule",
+        ha="center",
+        va="center",
+        fontsize=18,
+        style="italic",
+    )
 
     half = BOX_W / 2 + 0.18
     arrow(ax, (X_INPUT + 1.05, Y_MID), (X_MATCH - half, Y_MID))
     arrow(ax, (X_MATCH + half, Y_MID), (X_SCHED - half, Y_MID))
-    arrow(ax, (X_SCHED + half, Y_MID + 0.38), (X_CONF - half, Y_MID + 0.38),
-          rad=-0.35)
-    arrow(ax, (X_CONF - half, Y_MID - 0.38), (X_SCHED + half, Y_MID - 0.38),
-          rad=-0.35)
-    ax.text((X_SCHED + X_CONF) / 2, Y_MID - 1.15, "re-solve",
-            ha="center", fontsize=16, color=GREY)
+    arrow(ax, (X_SCHED + half, Y_MID + 0.38), (X_CONF - half, Y_MID + 0.38), rad=-0.35)
+    arrow(ax, (X_CONF - half, Y_MID - 0.38), (X_SCHED + half, Y_MID - 0.38), rad=-0.35)
+    ax.text(
+        (X_SCHED + X_CONF) / 2,
+        Y_MID - 1.15,
+        "re-solve",
+        ha="center",
+        fontsize=16,
+        color=GREY,
+    )
     arrow(ax, (X_CONF + half, Y_MID), (X_OUT - 1.0, Y_MID))
 
     for cx, label in [
@@ -153,26 +191,25 @@ def main() -> None:
         (X_SCHED, "MILP\n(Gurobi solver)"),
     ]:
         dotted_link(ax, cx, Y_MID - BOX_H / 2 - 0.12, Y_METHOD + 0.55)
-        ax.text(cx, Y_METHOD, label, ha="center", va="center",
-                fontsize=17, color=GREY)
+        ax.text(cx, Y_METHOD, label, ha="center", va="center", fontsize=17, color=GREY)
 
     for cx, draw in [
         (X_INPUT, lambda c: mini_preference(ax, c, Y_TOP)),
         (X_MATCH, lambda c: mini_flow(ax, c, Y_TOP)),
         (X_SCHED, lambda c: mini_schedule(ax, c, Y_TOP)),
-        (X_CONF, lambda c: mini_preference(ax, c, Y_TOP,
-                                           cut_edges=((0, 1),))),
+        (X_CONF, lambda c: mini_preference(ax, c, Y_TOP, cut_edges=((0, 1),))),
     ]:
         draw(cx)
-        dotted_link(ax, cx, Y_TOP - 1.25,
-                    Y_MID + (0.65 if cx == X_INPUT else BOX_H / 2 + 0.12))
+        dotted_link(
+            ax, cx, Y_TOP - 1.25, Y_MID + (0.65 if cx == X_INPUT else BOX_H / 2 + 0.12)
+        )
 
-    fig.tight_layout()
+    fig.tight_layout(pad=0.15)
     out = FIG_DIR / "pipeline_process_flow.pdf"
-    fig.savefig(out, bbox_inches="tight", facecolor="white")
+    fig.savefig(out, bbox_inches="tight", pad_inches=0.02, facecolor="white")
     png = FIG_DIR / "png" / f"{out.stem}.png"
     png.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(png, dpi=300, bbox_inches="tight", facecolor="white")
+    fig.savefig(png, dpi=300, bbox_inches="tight", pad_inches=0.02, facecolor="white")
     print(f"wrote {out} and {png}")
 
 

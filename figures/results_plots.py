@@ -56,13 +56,17 @@ def _i(row: dict, key: str) -> int:
 
 
 def _grid(rows: list[dict]) -> list[dict]:
-    return [r for r in rows if (_i(r, "matching_n_customers"),
-                                _i(r, "matching_n_drivers")) != REFERENCE]
+    return [
+        r
+        for r in rows
+        if (_i(r, "matching_n_customers"), _i(r, "matching_n_drivers")) != REFERENCE
+    ]
 
 
 def _rows_sorted(rows: list[dict]) -> list[dict]:
-    return sorted(rows, key=lambda r: (_i(r, "matching_n_customers"),
-                                       _i(r, "matching_n_drivers")))
+    return sorted(
+        rows, key=lambda r: (_i(r, "matching_n_customers"), _i(r, "matching_n_drivers"))
+    )
 
 
 def _instance_label(r: dict) -> str:
@@ -77,11 +81,20 @@ def plot_runtime_vs_nk(rows: list[dict], out: Path, col: str, title: str) -> Non
     driver_counts = sorted({_i(r, "matching_n_drivers") for r in grid})
     cmap = plt.get_cmap("viridis")
     for idx, K in enumerate(driver_counts):
-        pts = sorted((_i(r, "matching_n_customers"), _f(r, col))
-                     for r in grid if _i(r, "matching_n_drivers") == K)
+        pts = sorted(
+            (_i(r, "matching_n_customers"), _f(r, col))
+            for r in grid
+            if _i(r, "matching_n_drivers") == K
+        )
         xs, ys = zip(*pts)
-        ax_c.plot(xs, ys, "o-", color=cmap(idx / max(1, len(driver_counts) - 1)),
-                  label=f"$K={K}$", markersize=5)
+        ax_c.plot(
+            xs,
+            ys,
+            "o-",
+            color=cmap(idx / max(1, len(driver_counts) - 1)),
+            label=f"$K={K}$",
+            markersize=5,
+        )
     ax_c.set_xlabel("Customers $N$")
     ax_c.set_ylabel(f"{title} runtime (s)")
     ax_c.set_title("(a) vs. customer count")
@@ -90,18 +103,27 @@ def plot_runtime_vs_nk(rows: list[dict], out: Path, col: str, title: str) -> Non
     customer_counts = sorted({_i(r, "matching_n_customers") for r in grid})
     cmap2 = plt.get_cmap("plasma")
     for idx, N in enumerate(customer_counts):
-        pts = sorted((_i(r, "matching_n_drivers"), _f(r, col))
-                     for r in grid if _i(r, "matching_n_customers") == N)
+        pts = sorted(
+            (_i(r, "matching_n_drivers"), _f(r, col))
+            for r in grid
+            if _i(r, "matching_n_customers") == N
+        )
         xs, ys = zip(*pts)
-        ax_d.plot(xs, ys, "s-", color=cmap2(idx / max(1, len(customer_counts) - 1)),
-                  label=f"$N={N}$", markersize=5)
+        ax_d.plot(
+            xs,
+            ys,
+            "s-",
+            color=cmap2(idx / max(1, len(customer_counts) - 1)),
+            label=f"$N={N}$",
+            markersize=5,
+        )
     ax_d.set_xlabel("Drivers $K$")
     ax_d.set_ylabel(f"{title} runtime (s)")
     ax_d.set_title("(b) vs. driver count")
     ax_d.legend(title="Customers", fontsize=8)
 
     fig.suptitle(f"{title} runtime")
-    fig.tight_layout()
+    fig.tight_layout(pad=0.3)
     _save(fig, out)
 
 
@@ -123,22 +145,26 @@ def plot_resolution_boxplot(rows: list[dict], out: Path) -> None:
         showmeans=True,
         showfliers=False,
         patch_artist=True,
-        meanprops={"marker": "D", "markerfacecolor": "#1b3a5b",
-                   "markeredgecolor": "#1b3a5b", "markersize": 5},
+        meanprops={
+            "marker": "D",
+            "markerfacecolor": "#1b3a5b",
+            "markeredgecolor": "#1b3a5b",
+            "markersize": 5,
+        },
         medianprops={"color": "#1b3a5b", "linewidth": 1.4},
     )
     for i, color in enumerate(STRATEGY_COLORS):
         bp["boxes"][i].set_facecolor(color)
         bp["boxes"][i].set_alpha(0.55)
         bp["boxes"][i].set_edgecolor(color)
-        for line in bp["whiskers"][2 * i:2 * i + 2] + bp["caps"][2 * i:2 * i + 2]:
+        for line in bp["whiskers"][2 * i : 2 * i + 2] + bp["caps"][2 * i : 2 * i + 2]:
             line.set_color(color)
             line.set_linewidth(1.2)
     ax.set_ylabel("Excess over per-instance best objective (%)")
     ax.set_xlabel("Driver-ordering strategy")
     ax.set_title("Objective by conflict-resolution strategy")
     ax.axhline(0.0, color="grey", lw=0.8, ls="--")
-    fig.tight_layout()
+    fig.tight_layout(pad=0.3)
     _save(fig, out)
 
 
@@ -152,17 +178,29 @@ def plot_objective_by_phase(rows: list[dict], out: Path) -> None:
     x = range(len(rows))
 
     fig, (ax_abs, ax_rel) = plt.subplots(
-        2, 1, figsize=(12, 7.5), sharex=True,
+        2,
+        1,
+        figsize=(12, 7.5),
+        sharex=True,
         gridspec_kw={"height_ratios": [2, 1]},
     )
     width = 0.4
-    ax_abs.bar([i - width / 2 for i in x], init, width,
-               label="After initial scheduling", color=PHASE_INITIAL)
-    ax_abs.bar([i + width / 2 for i in x], final, width,
-               label="After conflict resolution", color=PHASE_CONFLICT)
+    ax_abs.bar(
+        [i - width / 2 for i in x],
+        init,
+        width,
+        label="After initial scheduling",
+        color=PHASE_INITIAL,
+    )
+    ax_abs.bar(
+        [i + width / 2 for i in x],
+        final,
+        width,
+        label="After conflict resolution",
+        color=PHASE_CONFLICT,
+    )
     ax_abs.set_ylabel("Objective (minutes)", fontsize=14)
-    ax_abs.set_title("Objective before and after conflict resolution",
-                     fontsize=16)
+    ax_abs.set_title("Objective before and after conflict resolution", fontsize=16)
     ax_abs.legend(fontsize=13)
 
     colors = [PHASE_CONFLICT if v >= 0 else "#8c8c8c" for v in improve]
@@ -171,20 +209,23 @@ def plot_objective_by_phase(rows: list[dict], out: Path) -> None:
     ax_rel.set_ylabel("Improvement (%)", fontsize=14)
     ax_rel.set_xlabel("Instance ($N$/$K$)", fontsize=14)
     ax_rel.set_xticks(list(x))
-    ax_rel.set_xticklabels(labels, rotation=45, ha="right",
-                           rotation_mode="anchor", fontsize=12)
+    ax_rel.set_xticklabels(
+        labels, rotation=45, ha="right", rotation_mode="anchor", fontsize=12
+    )
     for ax in (ax_abs, ax_rel):
         ax.tick_params(axis="y", labelsize=12)
-    fig.tight_layout()
+    fig.tight_layout(pad=0.3)
     _save(fig, out)
 
 
 def _save(fig, out: Path) -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out.with_suffix(".pdf"), bbox_inches="tight", facecolor="white")
+    fig.savefig(
+        out.with_suffix(".pdf"), bbox_inches="tight", pad_inches=0.02, facecolor="white"
+    )
     png = out.parent / "png" / (out.name + ".png")
     png.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(png, dpi=300, bbox_inches="tight", facecolor="white")
+    fig.savefig(png, dpi=300, bbox_inches="tight", pad_inches=0.02, facecolor="white")
     plt.close(fig)
     print(f"wrote {out.with_suffix('.pdf')} and {png}")
 
@@ -194,10 +235,15 @@ def main() -> None:
     rows = load_rows(csv_path)
     print(f"loaded {len(rows)} rows from {csv_path}")
 
-    plot_runtime_vs_nk(rows, FIG_DIR / "results_scheduling_runtime",
-                       "scheduling_seconds", "Scheduling")
-    plot_runtime_vs_nk(rows, FIG_DIR / "results_resolution_runtime",
-                       "conflict_seconds", "Conflict-resolution")
+    plot_runtime_vs_nk(
+        rows, FIG_DIR / "results_scheduling_runtime", "scheduling_seconds", "Scheduling"
+    )
+    plot_runtime_vs_nk(
+        rows,
+        FIG_DIR / "results_resolution_runtime",
+        "conflict_seconds",
+        "Conflict-resolution",
+    )
     plot_resolution_boxplot(rows, FIG_DIR / "results_resolution_boxplot")
     plot_objective_by_phase(rows, FIG_DIR / "results_objective_by_phase")
 

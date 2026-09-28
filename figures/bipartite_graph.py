@@ -50,8 +50,13 @@ def main() -> None:
         G, pos, ax=ax, edgelist=EDGES, edge_color="#666666", width=1.4
     )
     nx.draw_networkx_edges(
-        G, pos, ax=ax, edgelist=SOURCE_EDGES + SINK_EDGES,
-        edge_color="#999999", width=1.2, style="dashed",
+        G,
+        pos,
+        ax=ax,
+        edgelist=SOURCE_EDGES + SINK_EDGES,
+        edge_color="#999999",
+        width=1.2,
+        style="dashed",
     )
     for nodes, fill, edge in [
         (CUSTOMERS, CUSTOMER_COLOR, CUSTOMER_EDGE),
@@ -59,41 +64,68 @@ def main() -> None:
         ([SOURCE, SINK], TERMINAL_COLOR, TERMINAL_EDGE),
     ]:
         nx.draw_networkx_nodes(
-            G, pos, ax=ax, nodelist=nodes, node_size=2000,
-            node_color=fill, edgecolors=edge, linewidths=2.2,
+            G,
+            pos,
+            ax=ax,
+            nodelist=nodes,
+            node_size=2000,
+            node_color=fill,
+            edgecolors=edge,
+            linewidths=2.2,
         )
     nx.draw_networkx_labels(G, pos, ax=ax, font_size=16, font_weight="bold")
 
     ax.legend(
         handles=[
             Line2D(
-                [], [], linestyle="none", marker="o", markersize=15,
-                markerfacecolor=CUSTOMER_COLOR, markeredgecolor=CUSTOMER_EDGE,
-                markeredgewidth=1.8, label="Customers",
+                [],
+                [],
+                linestyle="none",
+                marker="o",
+                markersize=15,
+                markerfacecolor=CUSTOMER_COLOR,
+                markeredgecolor=CUSTOMER_EDGE,
+                markeredgewidth=1.8,
+                label="Customers",
             ),
             Line2D(
-                [], [], linestyle="none", marker="o", markersize=15,
-                markerfacecolor=DRIVER_COLOR, markeredgecolor=DRIVER_EDGE,
-                markeredgewidth=1.8, label="Drivers",
+                [],
+                [],
+                linestyle="none",
+                marker="o",
+                markersize=15,
+                markerfacecolor=DRIVER_COLOR,
+                markeredgecolor=DRIVER_EDGE,
+                markeredgewidth=1.8,
+                label="Drivers",
             ),
             Line2D(
-                [], [], linestyle="none", marker="o", markersize=15,
-                markerfacecolor=TERMINAL_COLOR, markeredgecolor=TERMINAL_EDGE,
-                markeredgewidth=1.8, label="Source / sink",
+                [],
+                [],
+                linestyle="none",
+                marker="o",
+                markersize=15,
+                markerfacecolor=TERMINAL_COLOR,
+                markeredgecolor=TERMINAL_EDGE,
+                markeredgewidth=1.8,
+                label="Source / sink",
             ),
         ],
-        loc="upper center", bbox_to_anchor=(0.5, 1.08), ncol=3, frameon=False,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 1.06),
+        ncol=3,
+        frameon=False,
         fontsize=15,
     )
     ax.set_axis_off()
-    ax.margins(x=0.12, y=0.08)
+    ax.margins(x=0.05, y=0.04)
 
-    fig.tight_layout()
+    fig.tight_layout(pad=0.2)
     out = FIG_DIR / "bipartite_graph.pdf"
-    fig.savefig(out, bbox_inches="tight", facecolor="white")
+    fig.savefig(out, bbox_inches="tight", pad_inches=0.02, facecolor="white")
     png = FIG_DIR / "png" / f"{out.stem}.png"
     png.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(png, dpi=300, bbox_inches="tight", facecolor="white")
+    fig.savefig(png, dpi=300, bbox_inches="tight", pad_inches=0.02, facecolor="white")
     print(f"wrote {out} and {png}")
 
 
