@@ -1,4 +1,4 @@
-"""Process-flow figure of the pipeline, sized for a 16:9 slide."""
+"""Process-flow figure of the pipeline."""
 
 from pathlib import Path
 
@@ -16,11 +16,11 @@ CUT_RED = "#c0392b"
 
 BOX_W, BOX_H = 2.8, 1.5
 Y_MID = 4.1
-Y_TOP = 8.0
-Y_METHOD = 1.5
-X_INPUT = 1.7
-X_MATCH, X_SCHED, X_CONF = 5.6, 9.7, 13.8
-X_OUT = 16.9
+Y_TOP = 6.2
+Y_METHOD = 2.6
+X_INPUT = 1.2
+X_MATCH, X_SCHED, X_CONF = 4.5, 8.45, 12.4
+X_OUT = 15.55
 
 DOT_MS = 13
 MINI_LW = 1.8
@@ -143,9 +143,9 @@ def mini_schedule(ax, cx, cy):
 
 
 def main() -> None:
-    fig, ax = plt.subplots(figsize=(16, 7.6))
-    ax.set_xlim(0.25, 17.95)
-    ax.set_ylim(0.95, 9.25)
+    fig, ax = plt.subplots(figsize=(14.8, 4.9))
+    ax.set_xlim(-0.05, 16.35)
+    ax.set_ylim(2.15, 7.35)
     ax.set_aspect("equal")
     ax.set_axis_off()
 
@@ -172,7 +172,7 @@ def main() -> None:
     )
 
     half = BOX_W / 2 + 0.18
-    arrow(ax, (X_INPUT + 1.05, Y_MID), (X_MATCH - half, Y_MID))
+    arrow(ax, (X_INPUT + 0.85, Y_MID), (X_MATCH - half, Y_MID))
     arrow(ax, (X_MATCH + half, Y_MID), (X_SCHED - half, Y_MID))
     arrow(ax, (X_SCHED + half, Y_MID + 0.38), (X_CONF - half, Y_MID + 0.38), rad=-0.35)
     arrow(ax, (X_CONF - half, Y_MID - 0.38), (X_SCHED + half, Y_MID - 0.38), rad=-0.35)
@@ -184,13 +184,13 @@ def main() -> None:
         fontsize=16,
         color=GREY,
     )
-    arrow(ax, (X_CONF + half, Y_MID), (X_OUT - 1.0, Y_MID))
+    arrow(ax, (X_CONF + half, Y_MID), (X_OUT - 0.75, Y_MID))
 
     for cx, label in [
         (X_MATCH, "Ford–Fulkerson\n(Edmonds–Karp)"),
         (X_SCHED, "MILP\n(Gurobi solver)"),
     ]:
-        dotted_link(ax, cx, Y_MID - BOX_H / 2 - 0.12, Y_METHOD + 0.55)
+        dotted_link(ax, cx, Y_MID - BOX_H / 2 - 0.08, Y_METHOD + 0.42)
         ax.text(cx, Y_METHOD, label, ha="center", va="center", fontsize=17, color=GREY)
 
     for cx, draw in [
@@ -201,15 +201,15 @@ def main() -> None:
     ]:
         draw(cx)
         dotted_link(
-            ax, cx, Y_TOP - 1.25, Y_MID + (0.65 if cx == X_INPUT else BOX_H / 2 + 0.12)
+            ax, cx, Y_TOP - 1.05, Y_MID + (0.55 if cx == X_INPUT else BOX_H / 2 + 0.08)
         )
 
-    fig.tight_layout(pad=0.15)
+    fig.tight_layout(pad=0.05)
     out = FIG_DIR / "pipeline_process_flow.pdf"
-    fig.savefig(out, bbox_inches="tight", pad_inches=0.02, facecolor="white")
+    fig.savefig(out, bbox_inches="tight", pad_inches=0.01, facecolor="white")
     png = FIG_DIR / "png" / f"{out.stem}.png"
     png.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(png, dpi=300, bbox_inches="tight", pad_inches=0.02, facecolor="white")
+    fig.savefig(png, dpi=300, bbox_inches="tight", pad_inches=0.01, facecolor="white")
     print(f"wrote {out} and {png}")
 
 
