@@ -162,7 +162,7 @@ def plot_resolution_boxplot(rows: list[dict], out: Path) -> None:
             line.set_linewidth(1.2)
     ax.set_ylabel("Excess over per-instance best objective (%)")
     ax.set_xlabel("Driver-ordering strategy")
-    ax.set_title("Objective by conflict-resolution strategy")
+    ax.set_title("Objective by conflict resolution strategy")
     ax.axhline(0.0, color="grey", lw=0.8, ls="--")
     fig.tight_layout(pad=0.3)
     _save(fig, out)
@@ -242,7 +242,7 @@ def main() -> None:
         rows,
         FIG_DIR / "results_resolution_runtime",
         "conflict_seconds",
-        "Conflict-resolution",
+        "Conflict resolution",
     )
     plot_resolution_boxplot(rows, FIG_DIR / "results_resolution_boxplot")
     plot_objective_by_phase(rows, FIG_DIR / "results_objective_by_phase")
